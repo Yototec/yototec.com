@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Pinned Section Scroll</title>
+  <style>
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      /* Some font and overflow settings */
+      font-family: sans-serif;
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+    }
+
+    /* 
+       Create a large scrolling container with a total height = number of sections × 100vh. 
+       If you have 4 sections, it might be 400vh, etc.
+    */
+    .scroll-spacer {
+      height: 400vh;
+      /* 4 sections × 100vh each */
+      width: 100vw;
+    }
+
+    /* 
+       Each section is pinned on the screen.
+       They all occupy the same space, one on top of another.
+    */
+    section {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      color: #fff;
+      transition: opacity 0.7s ease-in-out;
+      opacity: 1;
+      pointer-events: auto;
+      /* ensure only the visible section is interactive */
+    }
+
+    /* Different background colors for each section (just for visibility) */
+    #section1 {
+      background: #2ecc71;
+      /* Green */
+    }
+
+    #section2 {
+      background: #e74c3c;
+      /* Red   */
+    }
+
+    #section3 {
+      background: #3498db;
+      /* Blue  */
+    }
+
+    #section4 {
+      background: #9b59b6;
+      /* Purple*/
+    }
+
+    /* Hidden state: fade out & no pointer events */
+    .hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* 
+       Debug box to show scroll position
+       (completely optional, just for debugging).
+    */
+    #debug {
+      position: fixed;
+      top: 0;
+      left: 0;
+      padding: 0.5rem 1rem;
+      background: rgba(0, 0, 0, 0.5);
+      color: #fff;
+      font-size: 0.9rem;
+      z-index: 9999;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- A debug box to show the scroll position -->
+  <div id="debug">Scroll Position: 0</div>
+
+  <!-- All sections are pinned/fixed to the viewport -->
+  <section id="section1">SECTION 1</section>
+  <section id="section2" class="hidden">SECTION 2</section>
+  <section id="section3" class="hidden">SECTION 3</section>
+  <section id="section4" class="hidden">SECTION 4</section>
+
+  <!-- This empty div is the actual "scrollable" space -->
+  <div class="scroll-spacer"></div>
+
+  <script>
+    const s1 = document.getElementById('section1');
+    const s2 = document.getElementById('section2');
+    const s3 = document.getElementById('section3');
+    const s4 = document.getElementById('section4');
+    const debugBox = document.getElementById('debug');
+
+    // We'll base thresholds on window.innerHeight
+    window.addEventListener('scroll', () => {
+      const scrollPos = window.scrollY;
+      const screenHeight = window.innerHeight;
+
+      // For debugging
+      debugBox.textContent = 'Scroll Position: ' + Math.round(scrollPos)
+        + ' | screenHeight: ' + screenHeight;
+
+      // Decide which section should be visible
+      // You can adjust these thresholds to your liking
+      if (scrollPos < screenHeight) {
+        // Show section1, hide others
+        s1.classList.remove('hidden');
+        s2.classList.add('hidden');
+        s3.classList.add('hidden');
+        s4.classList.add('hidden');
+      }
+      else if (scrollPos >= screenHeight && scrollPos < 2 * screenHeight) {
+        s1.classList.add('hidden');
+        s2.classList.remove('hidden');
+        s3.classList.add('hidden');
+        s4.classList.add('hidden');
+      }
+      else if (scrollPos >= 2 * screenHeight && scrollPos < 3 * screenHeight) {
+        s1.classList.add('hidden');
+        s2.classList.add('hidden');
+        s3.classList.remove('hidden');
+        s4.classList.add('hidden');
+      }
+      else {
+        // scrollPos >= 3*screenHeight
+        s1.classList.add('hidden');
+        s2.classList.add('hidden');
+        s3.classList.add('hidden');
+        s4.classList.remove('hidden');
+      }
+    });
+  </script>
+</body>
+
+</html>
