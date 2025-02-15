@@ -3,6 +3,7 @@
 
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Yototec</title>
   <style>
     html,
@@ -13,6 +14,7 @@
       scroll-behavior: smooth;
       font-family: 'Roboto', sans-serif;
       height: 400vh;
+      background: #000;
     }
 
     #galaxy {
@@ -23,7 +25,7 @@
       height: 100vh;
       background: #000;
       overflow: hidden;
-      z-index: -1;
+      z-index: 0;
       transition: transform 1.5s ease;
       transform-style: preserve-3d;
     }
@@ -39,16 +41,16 @@
     }
 
     @keyframes twinkle {
-      100% {
-        opacity: 0.8;
+      0% {
+        opacity: 0.5;
       }
 
       50% {
         opacity: 0.7;
       }
 
-      0% {
-        opacity: 0.5;
+      100% {
+        opacity: 0.8;
       }
     }
 
@@ -173,6 +175,63 @@
       padding: 1rem;
       pointer-events: none;
     }
+
+    @media (max-width: 768px) {
+
+      h1 {
+        font-size: 3rem;
+      }
+
+      h2 {
+        font-size: 2rem;
+      }
+
+      h3 {
+        font-size: 1.4rem;
+        width: 80%;
+      }
+
+      #section2 p {
+        width: 80%;
+        font-size: 1.1rem;
+      }
+
+      #galaxy.section3-active .special-star {
+        width: 3px;
+        height: 3px;
+      }
+    }
+
+    @media (max-width: 480px) {
+
+      h1 {
+        font-size: 2.2rem;
+      }
+
+      h2 {
+        font-size: 1.6rem;
+      }
+
+      h3 {
+        font-size: 1.2rem;
+        width: 85%;
+      }
+
+      #section2 p {
+        width: 90%;
+        font-size: 1rem;
+      }
+
+      .star-label {
+        font-size: 0.7rem;
+        left: 6px;
+        top: -4px;
+      }
+
+      footer {
+        font-size: 0.8rem;
+      }
+    }
   </style>
 </head>
 
@@ -186,8 +245,7 @@
   </section>
 
   <section id="section2" class="hidden">
-    <h3>
-      Founded in 2018, Yototec combines frontier AI innovations, quant strategies,
+    <h3>Founded in 2018, Yototec combines frontier AI innovations, quant strategies,
       and fundamental research to turn market data into actionable insights.
     </h3>
   </section>
@@ -201,7 +259,9 @@
 
   <div class="scroll-spacer"></div>
 
-  <footer>Yototec © All Rights Reserved 2025</footer>
+  <footer>
+    Yototec © All Rights Reserved 2025
+  </footer>
 
   <script>
     const galaxy = document.getElementById('galaxy');
@@ -233,9 +293,9 @@
       "2020 – Added social media data for sentiment research",
       "2021 – Shifted from sentiment scoring to extract investable topics",
       "2022 – Developed more advanced language models",
-      "2023 – Launched SentiMove for extracing actionable market insights",
+      "2023 – Launched SentiMove for extracting actionable market insights",
       "2024 – Launched SentiChain for decentralized sentiment intelligence",
-      "2025 – Transition to AI Agents to perform human-like investment research",
+      "2025 – Transition to AI Agents to perform human-like investment research"
     ];
 
     specialStarPositions.forEach((pos, index) => {
