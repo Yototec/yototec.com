@@ -89,6 +89,7 @@
       opacity: 0;
       transition: opacity 0.3s;
       text-shadow: 0 0 0.25px #ffffff, 0 0 0.5px #ffffff;
+      pointer-events: none;
     }
 
     #galaxy.section3-active .special-star {
@@ -142,6 +143,7 @@
     h1 {
       font-size: 4rem;
       animation: neonFlicker 2.5s infinite alternate;
+      cursor: none;
     }
 
     @keyframes neonFlicker {
@@ -167,6 +169,7 @@
     h2 {
       font-size: 2.5rem;
       text-shadow: 0 0 3px #ffffff, 0 0 5px #ffffff;
+      cursor: none;
     }
 
     h3 {
@@ -176,6 +179,7 @@
       margin: 0 auto;
       text-align: center;
       text-shadow: 0 0 2px #ffffff, 0 0 3px #ffffff;
+      cursor: none;
     }
 
     h4 {
@@ -185,6 +189,7 @@
       margin: 0 auto;
       text-align: center;
       text-shadow: 0 0 1px #ffffff, 0 0 2px #ffffff;
+      cursor: none;
     }
 
     footer {
@@ -199,6 +204,11 @@
     }
 
     @media (max-width: 768px) {
+      #section1 {
+        justify-content: flex-start;
+        padding-top: 35vh;
+      }
+
       h1 {
         font-size: 3rem;
       }
@@ -226,37 +236,6 @@
       #galaxy.section3-active .special-star {
         width: 3px;
         height: 3px;
-      }
-    }
-
-    @media (max-width: 480px) {
-      h1 {
-        font-size: 2.2rem;
-      }
-
-      h2 {
-        font-size: 1.6rem;
-      }
-
-      h3 {
-        font-size: 1.2rem;
-        width: 85%;
-      }
-
-      #section2 p {
-        width: 90%;
-        font-size: 1rem;
-      }
-
-      .star-label {
-        font-size: 0.7rem;
-        left: 6px;
-        top: -4px;
-        text-shadow: 0 0 0.25px #ffffff, 0 0 0.5px #ffffff;
-      }
-
-      footer {
-        font-size: 0.8rem;
       }
     }
   </style>
