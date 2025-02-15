@@ -4,7 +4,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <title>Yototec</title>
+
+  <meta name="description"
+    content="Yototec combines frontier AI innovations, quant strategies, and fundamental research to turn market data into actionable insights, with a vision to replace traditional trading strategies with AI Agents that emulate human judgment." />
+  <meta name="keywords" content="Yototec, sentiment analysis, quant strategies, market insights" />
+  <meta name="robots" content="index, follow" />
+  <meta property="og:title" content="Yototec: Innovating Market Intelligence" />
+  <meta property="og:description"
+    content="Yototec combines frontier AI innovations, quant strategies, and fundamental research to turn market data into actionable insights." />
+
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+
   <style>
     html,
     body {
@@ -72,7 +84,7 @@
       left: 8px;
       top: -6px;
       color: #fff;
-      font-size: 0.8rem;
+      font-size: 1rem;
       white-space: nowrap;
       opacity: 0;
       transition: opacity 0.3s;
@@ -177,7 +189,6 @@
     }
 
     @media (max-width: 768px) {
-
       h1 {
         font-size: 3rem;
       }
@@ -203,7 +214,6 @@
     }
 
     @media (max-width: 480px) {
-
       h1 {
         font-size: 2.2rem;
       }
@@ -236,7 +246,6 @@
 </head>
 
 <body>
-
   <div id="galaxy"></div>
 
   <section id="section1">
@@ -245,7 +254,8 @@
   </section>
 
   <section id="section2" class="hidden">
-    <h3>Founded in 2018, Yototec combines frontier AI innovations, quant strategies,
+    <h3>
+      Founded in 2018, Yototec combines frontier AI innovations, quant strategies,
       and fundamental research to turn market data into actionable insights.
     </h3>
   </section>
@@ -273,21 +283,35 @@
       star.style.top = Math.random() * 100 + '%';
       star.style.left = Math.random() * 100 + '%';
       star.style.animationDuration = (Math.random() * 2 + 1) + 's';
+      const starSize = (Math.random() * 4) + 1;
+      star.style.width = starSize + 'px';
+      star.style.height = starSize + 'px';
       galaxy.appendChild(star);
     }
 
-    const specialStarPositions = [
-      { top: '30%', left: '20%' },
-      { top: '35%', left: '70%' },
-      { top: '40%', left: '15%' },
-      { top: '45%', left: '50%' },
-      { top: '50%', left: '80%' },
-      { top: '55%', left: '25%' },
-      { top: '60%', left: '65%' },
-      { top: '70%', left: '40%' }
+    const specialStarPositionsDesktop = [
+      { top: '30%', left: '35%' },
+      { top: '35%', left: '35%' },
+      { top: '40%', left: '35%' },
+      { top: '45%', left: '35%' },
+      { top: '50%', left: '35%' },
+      { top: '55%', left: '35%' },
+      { top: '60%', left: '35%' },
+      { top: '65%', left: '35%' }
     ];
 
-    const starLabels = [
+    const specialStarPositionsMobile = [
+      { top: '30%', left: '20%' },
+      { top: '35%', left: '20%' },
+      { top: '40%', left: '20%' },
+      { top: '45%', left: '20%' },
+      { top: '50%', left: '20%' },
+      { top: '55%', left: '20%' },
+      { top: '60%', left: '20%' },
+      { top: '65%', left: '20%' }
+    ];
+
+    const starLabelsDesktop = [
       "2018 – Introduced NLP-driven sentiment analysis for US equities",
       "2019 – Expanded sentiment analysis to investment reports",
       "2020 – Added social media data for sentiment research",
@@ -297,6 +321,25 @@
       "2024 – Launched SentiChain for decentralized sentiment intelligence",
       "2025 – Transition to AI Agents to perform human-like investment research"
     ];
+
+    const starLabelsMobile = [
+      "2018 – Introduced NLP-driven sentiment analysis<br>for US equities",
+      "2019 – Expanded sentiment analysis to investment<br>reports",
+      "2020 – Added social media data for sentiment<br>research",
+      "2021 – Shifted from sentiment scoring to extract<br>investable topics",
+      "2022 – Developed more advanced language<br>models",
+      "2023 – Launched SentiMove for extracting<br>actionable market insights",
+      "2024 – Launched SentiChain for decentralized<br>sentiment intelligence",
+      "2025 – Transition to AI Agents to perform<br>human-like investment research"
+    ];
+
+    const isMobile = window.matchMedia('(max-width: 768px)').matches;
+    const specialStarPositions = isMobile
+      ? specialStarPositionsMobile
+      : specialStarPositionsDesktop;
+    const starLabels = isMobile
+      ? starLabelsMobile
+      : starLabelsDesktop;
 
     specialStarPositions.forEach((pos, index) => {
       const container = document.createElement('div');
@@ -310,7 +353,7 @@
 
       const label = document.createElement('div');
       label.className = 'star-label';
-      label.textContent = starLabels[index];
+      label.innerHTML = starLabels[index]; // Use innerHTML so <br> is interpreted
 
       container.appendChild(star);
       container.appendChild(label);
