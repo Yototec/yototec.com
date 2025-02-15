@@ -2,33 +2,64 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <title>Pinned Section Scroll</title>
+  <meta charset="UTF-8" />
+  <title>Galaxy Scroll Demo</title>
   <style>
+    /* Reset & basic styles */
     html,
     body {
       margin: 0;
       padding: 0;
-      /* Some font and overflow settings */
-      font-family: sans-serif;
       overflow-x: hidden;
       scroll-behavior: smooth;
-    }
-
-    /* 
-       Create a large scrolling container with a total height = number of sections × 100vh. 
-       If you have 4 sections, it might be 400vh, etc.
-    */
-    .scroll-spacer {
+      font-family: sans-serif;
       height: 400vh;
-      /* 4 sections × 100vh each */
-      width: 100vw;
+      /* Enough space to scroll through 4 “screens” worth */
     }
 
-    /* 
-       Each section is pinned on the screen.
-       They all occupy the same space, one on top of another.
-    */
+    /* The pinned galaxy background */
+    #galaxy {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: #000;
+      /* space is black! */
+      overflow: hidden;
+      /* keep the stars within this container */
+      z-index: -1;
+      /* ensure it sits behind everything else */
+      transition: transform 1.5s ease;
+      /* smooth transform changes */
+      transform-style: preserve-3d;
+      /* so 3D transforms (rotateX) look correct */
+    }
+
+    /* Each star is a small white dot with a twinkle animation */
+    .star {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: #fff;
+      border-radius: 50%;
+      animation: twinkle 2s infinite ease-in-out;
+      opacity: 0.8;
+    }
+
+    @keyframes twinkle {
+
+      0%,
+      100% {
+        opacity: 0.8;
+      }
+
+      50% {
+        opacity: 0.2;
+      }
+    }
+
+    /* Our pinned sections (fake “slides”) */
     section {
       position: fixed;
       top: 0;
@@ -40,43 +71,43 @@
       justify-content: center;
       font-size: 2rem;
       color: #fff;
+      pointer-events: none;
+      /* so the 'scroll-spacer' behind is scrollable */
       transition: opacity 0.7s ease-in-out;
       opacity: 1;
-      pointer-events: auto;
-      /* ensure only the visible section is interactive */
+      text-align: center;
     }
 
-    /* Different background colors for each section (just for visibility) */
-    #section1 {
-      background: #2ecc71;
-      /* Green */
-    }
-
-    #section2 {
-      background: #e74c3c;
-      /* Red   */
-    }
-
-    #section3 {
-      background: #3498db;
-      /* Blue  */
-    }
-
-    #section4 {
-      background: #9b59b6;
-      /* Purple*/
-    }
-
-    /* Hidden state: fade out & no pointer events */
     .hidden {
       opacity: 0;
       pointer-events: none;
     }
 
-    /* 
-       Debug box to show scroll position
-       (completely optional, just for debugging).
-    */
+    /* Distinct text color or overlay for each section (optional) */
+    #section1 {
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    #section2 {
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    #section3 {
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    #section4 {
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    /* The actual scrollable space behind the pinned sections */
+    .scroll-spacer {
+      width: 100vw;
+      height: 400vh;
+      /* 4 “screens” */
+    }
+
+    /* Debug box (optional) */
     #debug {
       position: fixed;
       top: 0;
@@ -92,61 +123,98 @@
 
 <body>
 
-  <!-- A debug box to show the scroll position -->
+  <!-- Debug readout (optional) -->
   <div id="debug">Scroll Position: 0</div>
 
-  <!-- All sections are pinned/fixed to the viewport -->
-  <section id="section1">SECTION 1</section>
-  <section id="section2" class="hidden">SECTION 2</section>
-  <section id="section3" class="hidden">SECTION 3</section>
-  <section id="section4" class="hidden">SECTION 4</section>
+  <!-- The pinned galaxy layer (behind sections) -->
+  <div id="galaxy"></div>
 
-  <!-- This empty div is the actual "scrollable" space -->
+  <!-- Our 4 pinned sections stacked up -->
+  <section id="section1">SECTION 1<br>Far View of Galaxy</section>
+  <section id="section2" class="hidden">SECTION 2<br>Tilt 30° from Section 1</section>
+  <section id="section3" class="hidden">SECTION 3<br>Zoom In</section>
+  <section id="section4" class="hidden">SECTION 4<br>Transition Back to Far View</section>
+
+  <!-- Scroll spacer to enable actual scrolling -->
   <div class="scroll-spacer"></div>
 
   <script>
+    /* ==============================
+       1) GENERATE RANDOM STARS
+       ============================== */
+    const galaxy = document.getElementById('galaxy');
+
+    const NUM_STARS = 200; // adjust for density
+    for (let i = 0; i < NUM_STARS; i++) {
+      const star = document.createElement('div');
+      star.className = 'star';
+      // Random position
+      star.style.top = Math.random() * 100 + '%';
+      star.style.left = Math.random() * 100 + '%';
+      // Optional: random twinkle duration
+      star.style.animationDuration = (Math.random() * 2 + 1) + 's';
+      galaxy.appendChild(star);
+    }
+
+    /* ==============================
+       2) SCROLL + TRANSFORM LOGIC
+       ============================== */
+    const debugBox = document.getElementById('debug');
     const s1 = document.getElementById('section1');
     const s2 = document.getElementById('section2');
     const s3 = document.getElementById('section3');
     const s4 = document.getElementById('section4');
-    const debugBox = document.getElementById('debug');
 
-    // We'll base thresholds on window.innerHeight
     window.addEventListener('scroll', () => {
       const scrollPos = window.scrollY;
       const screenHeight = window.innerHeight;
 
-      // For debugging
-      debugBox.textContent = 'Scroll Position: ' + Math.round(scrollPos)
-        + ' | screenHeight: ' + screenHeight;
+      debugBox.textContent =
+        'Scroll Position: ' + Math.round(scrollPos) +
+        ' | screenHeight: ' + screenHeight;
 
-      // Decide which section should be visible
-      // You can adjust these thresholds to your liking
+      /* Decide which “section” is in view. 
+         Then show/hide sections & apply transforms to #galaxy 
+      */
       if (scrollPos < screenHeight) {
-        // Show section1, hide others
+        // SECTION 1: far view, no tilt
         s1.classList.remove('hidden');
         s2.classList.add('hidden');
         s3.classList.add('hidden');
         s4.classList.add('hidden');
+
+        // transform: normal scale, no rotation
+        galaxy.style.transform = 'scale(1) rotateX(0deg)';
       }
       else if (scrollPos >= screenHeight && scrollPos < 2 * screenHeight) {
+        // SECTION 2: tilt 30 degrees
         s1.classList.add('hidden');
         s2.classList.remove('hidden');
         s3.classList.add('hidden');
         s4.classList.add('hidden');
+
+        // transform: slight scale, 30° tilt
+        galaxy.style.transform = 'perspective(1000px) rotateX(20deg) scale(1.5)';
       }
       else if (scrollPos >= 2 * screenHeight && scrollPos < 3 * screenHeight) {
+        // SECTION 3: zoom in more
         s1.classList.add('hidden');
         s2.classList.add('hidden');
         s3.classList.remove('hidden');
         s4.classList.add('hidden');
+
+        // transform: deeper scale, keep tilt
+        galaxy.style.transform = 'perspective(1000px) rotateX(20deg) scale(2)';
       }
       else {
-        // scrollPos >= 3*screenHeight
+        // SECTION 4: return to far view
         s1.classList.add('hidden');
         s2.classList.add('hidden');
         s3.classList.add('hidden');
         s4.classList.remove('hidden');
+
+        // transform: back to normal scale, no tilt
+        galaxy.style.transform = 'scale(1) rotateX(0deg)';
       }
     });
   </script>
