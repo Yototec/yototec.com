@@ -227,7 +227,7 @@
 
     @keyframes blink {
       0% {
-        opacity: 1;
+        opacity: 0.9;
       }
 
       50% {
@@ -235,11 +235,10 @@
       }
 
       100% {
-        opacity: 1;
+        opacity: 0.9;
       }
     }
 
-    /* Responsive adjustments */
     @media (max-width: 768px) {
       #section1 {
         justify-content: flex-start;
@@ -306,7 +305,7 @@
   <footer>
     Yototec © All Rights Reserved 2025
   </footer>
-  <div id="scroll-down-notification">⮟<br>⮟</div>
+  <div id="scroll-down-notification">Scroll Down</div>
   <script>
     const galaxy = document.getElementById('galaxy');
     const NUM_STARS = 100;
@@ -402,7 +401,7 @@
       if (scrollNotification) {
         scrollNotification.style.display = 'none';
       }
-    }, 10000);
+    }, 5000);
   </script>
 </body>
 
