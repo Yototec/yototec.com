@@ -1,20 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
   <title>Yototec</title>
   <style>
     /* Reset & basic styles */
-    html,
-    body {
+    html, body {
       margin: 0;
       padding: 0;
       overflow-x: hidden;
       scroll-behavior: smooth;
       font-family: 'Roboto', sans-serif;
-      height: 400vh;
-      /* Enough space to scroll through 4 “screens” worth */
+      height: 400vh; /* Enough space to scroll through 4 "screens" */
     }
 
     /* The pinned galaxy background */
@@ -24,19 +21,14 @@
       left: 0;
       width: 100vw;
       height: 100vh;
-      background: #000;
-      /* space is black! */
-      overflow: hidden;
-      /* keep the stars within this container */
-      z-index: -1;
-      /* ensure it sits behind everything else */
+      background: #000; /* space is black! */
+      overflow: hidden; /* keep the stars within this container */
+      z-index: -1;      /* ensure it sits behind everything else */
       transition: transform 1.5s ease;
-      /* smooth transform changes */
-      transform-style: preserve-3d;
-      /* so 3D transforms (rotateX) look correct */
+      transform-style: preserve-3d; /* so 3D transforms (rotateX) look correct */
     }
 
-    /* Each star is a small white dot with a twinkle animation */
+    /* Normal stars */
     .star {
       position: absolute;
       width: 2px;
@@ -48,18 +40,49 @@
     }
 
     @keyframes twinkle {
-
-      0%,
-      100% {
-        opacity: 0.8;
-      }
-
-      50% {
-        opacity: 0.2;
-      }
+      0%, 100% { opacity: 0.8; }
+      50%      { opacity: 0.2; }
     }
 
-    /* Our pinned sections (fake “slides”) */
+    /* Container for each special star + its label */
+    .special-star-container {
+      position: absolute; /* We'll position it with top & left below */
+    }
+
+    /* Special star (same by default) */
+    .special-star {
+      width: 2px;
+      height: 2px;
+      background: #fff;
+      border-radius: 50%;
+      animation: twinkle 2s infinite ease-in-out;
+      opacity: 0.8;
+    }
+
+    /* Star label, initially hidden (opacity 0); shown only in Section 3 */
+    .star-label {
+      position: absolute;
+      left: 8px;     /* adjust horizontal offset */
+      top: -6px;     /* adjust vertical offset to align next to star */
+      color: #fff;
+      font-size: 0.8rem;
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    /* In section3-active mode, show the label and brighten the star */
+    #galaxy.section3-active .special-star {
+      width: 4px;
+      height: 4px;
+      box-shadow: 0 0 8px #fff, 0 0 15px #fff;
+      opacity: 1;
+    }
+    #galaxy.section3-active .star-label {
+      opacity: 1;
+    }
+
+    /* Our pinned sections */
     section {
       position: fixed;
       top: 0;
@@ -71,16 +94,13 @@
       align-items: center;
       justify-content: center;
       font-size: 2rem;
-      /* Base font size for each section */
       color: #fff;
-      pointer-events: none;
-      /* so the 'scroll-spacer' behind is scrollable */
+      pointer-events: none; /* so the 'scroll-spacer' behind is scrollable */
       transition: opacity 0.7s ease-in-out;
       opacity: 1;
       text-align: center;
       background: rgba(0, 0, 0, 0.2);
     }
-
     .hidden {
       opacity: 0;
       pointer-events: none;
@@ -98,8 +118,7 @@
     /* The actual scrollable space behind the pinned sections */
     .scroll-spacer {
       width: 100vw;
-      height: 400vh;
-      /* 4 “screens” */
+      height: 400vh; /* 4 "screens" */
     }
 
     /* Debug box (optional) */
@@ -108,7 +127,7 @@
       top: 0;
       left: 0;
       padding: 0.5rem 1rem;
-      background: rgba(0, 0, 0, 0.5);
+      background: rgba(0,0,0,0.5);
       color: #fff;
       font-size: 0.9rem;
       z-index: 9999;
@@ -123,14 +142,10 @@
       font-size: 4rem;
       animation: neonFlicker 2.5s infinite alternate;
     }
-
     @keyframes neonFlicker {
-
-      0%,
-      100% {
+      0%, 100% {
         text-shadow: 0 0 4px #ffffff, 0 0 9px #ffffff;
       }
-
       50% {
         text-shadow: 0 0 3px #ffffff, 0 0 7px #ffffff;
       }
@@ -138,13 +153,10 @@
 
     /* 4) Reduce spacing between h1 and h2 in section 1 */
     #section1 h1 {
-      margin-bottom: 1rem;
-      /* Adjust as needed */
+      margin-bottom: 1rem; /* Adjust as needed */
     }
-
     #section1 h2 {
-      margin-top: 0;
-      /* Remove any top margin */
+      margin-top: 0; /* Remove any top margin */
     }
 
     /* 1) Make h2 smaller */
@@ -179,16 +191,17 @@
     <h2>Innovating Market Intelligence</h2>
   </section>
 
-  <!-- Section 2: Company description in a different font -->
+  <!-- Section 2: Company description -->
   <section id="section2" class="hidden">
     <h3>
       Founded in 2018, Yototec combines frontier AI innovations, quant strategies,
-      and fundamental research to turn market data into actionable insights, with a vision
-      to replace traditional trading strategies with AI Agents that emulate human judgment.
+      and fundamental research to turn market data into actionable insights,
+      with a vision to replace traditional trading strategies with AI Agents
+      that emulate human judgment.
     </h3>
   </section>
 
-  <!-- Section 3: Keep as is -->
+  <!-- Section 3 -->
   <section id="section3" class="hidden">
     SECTION 3<br>Zoom In
   </section>
@@ -207,8 +220,8 @@
        1) GENERATE RANDOM STARS
        ============================== */
     const galaxy = document.getElementById('galaxy');
-
     const NUM_STARS = 200; // adjust for density
+
     for (let i = 0; i < NUM_STARS; i++) {
       const star = document.createElement('div');
       star.className = 'star';
@@ -219,6 +232,45 @@
       star.style.animationDuration = (Math.random() * 2 + 1) + 's';
       galaxy.appendChild(star);
     }
+
+    /* ==============================
+       1B) ADD 8 SPECIAL STARS + LABELS
+       ============================== */
+    // Adjusted positions so they're more centered & likely visible under tilt/zoom
+    const specialStarPositions = [
+      { top: '30%', left: '20%' },
+      { top: '35%', left: '70%' },
+      { top: '40%', left: '15%' },
+      { top: '45%', left: '50%' },
+      { top: '50%', left: '80%' },
+      { top: '55%', left: '25%' },
+      { top: '60%', left: '65%' },
+      { top: '70%', left: '40%' }
+    ];
+
+    specialStarPositions.forEach((pos, index) => {
+      // create a container for star + label
+      const container = document.createElement('div');
+      container.className = 'special-star-container';
+      container.style.top = pos.top;
+      container.style.left = pos.left;
+
+      // create the special star
+      const star = document.createElement('div');
+      star.className = 'star special-star';
+      // random twinkle effect
+      star.style.animationDuration = (Math.random() * 2 + 1) + 's';
+
+      // create the label (e.g. "Star 1", "Star 2", etc.)
+      const label = document.createElement('div');
+      label.className = 'star-label';
+      label.textContent = `Star ${index + 1}`;
+
+      // append star + label to container, then container to galaxy
+      container.appendChild(star);
+      container.appendChild(label);
+      galaxy.appendChild(container);
+    });
 
     /* ==============================
        2) SCROLL + TRANSFORM LOGIC
@@ -237,43 +289,47 @@
         'Scroll Position: ' + Math.round(scrollPos) +
         ' | screenHeight: ' + screenHeight;
 
-      /* Decide which “section” is in view.
-         Then show/hide sections & apply transforms to #galaxy 
+      /*
+        Decide which “section” is in view,
+        then show/hide sections & apply transforms to #galaxy
       */
       if (scrollPos < screenHeight) {
-        // SECTION 1: far view, no tilt
+        // SECTION 1
         s1.classList.remove('hidden');
         s2.classList.add('hidden');
         s3.classList.add('hidden');
         s4.classList.add('hidden');
         galaxy.style.transform = 'scale(1) rotateX(0deg)';
+        galaxy.classList.remove('section3-active');
       }
       else if (scrollPos >= screenHeight && scrollPos < 2 * screenHeight) {
-        // SECTION 2: tilt 30 degrees
+        // SECTION 2
         s1.classList.add('hidden');
         s2.classList.remove('hidden');
         s3.classList.add('hidden');
         s4.classList.add('hidden');
         galaxy.style.transform = 'perspective(1000px) rotateX(20deg) scale(1.5)';
+        galaxy.classList.remove('section3-active');
       }
       else if (scrollPos >= 2 * screenHeight && scrollPos < 3 * screenHeight) {
-        // SECTION 3: zoom in more
+        // SECTION 3
         s1.classList.add('hidden');
         s2.classList.add('hidden');
         s3.classList.remove('hidden');
         s4.classList.add('hidden');
-        galaxy.style.transform = 'perspective(1000px) rotateX(20deg) scale(2)';
+        galaxy.style.transform = 'perspective(1000px) rotateX(15deg) scale(1.4)';
+        galaxy.classList.add('section3-active');
       }
       else {
-        // SECTION 4: return to far view
+        // SECTION 4
         s1.classList.add('hidden');
         s2.classList.add('hidden');
         s3.classList.add('hidden');
         s4.classList.remove('hidden');
         galaxy.style.transform = 'scale(1) rotateX(0deg)';
+        galaxy.classList.remove('section3-active');
       }
     });
   </script>
 </body>
-
 </html>
