@@ -698,8 +698,6 @@ function createWorkstation(x, y) {
         }
     }
 
-    office[y + 1][x] = OBJECTS.CHAIR;
-
     office[y - 1][x] = OBJECTS.COMPUTER;
 }
 
@@ -908,30 +906,33 @@ function drawOffice() {
                     ctx.strokeStyle = '#5d2906';
                     ctx.lineWidth = 0.5;
                     ctx.beginPath();
-                    for (let i = 1; i < 5; i++) {
-                        ctx.moveTo(cellX + 2, cellY + 2 + i * 3);
-                        ctx.lineTo(cellX + GRID_SIZE - 2, cellY + 2 + i * 3);
+
+                    for (let i = 1; i < 8; i++) {
+                        const yOffset = cellY + 2 + i * (GRID_SIZE - 4) / 8;
+                        ctx.moveTo(cellX + 2, yOffset);
+                        ctx.lineTo(cellX + GRID_SIZE - 2, yOffset);
+
+                        if (i % 2 === 0) {
+                            ctx.moveTo(cellX + 2, yOffset - 1);
+                            ctx.bezierCurveTo(
+                                cellX + GRID_SIZE / 3, yOffset - 3,
+                                cellX + GRID_SIZE * 2 / 3, yOffset + 3,
+                                cellX + GRID_SIZE - 2, yOffset - 1
+                            );
+                        }
                     }
+
+                    for (let i = 1; i < 4; i++) {
+                        const xOffset = cellX + 2 + i * (GRID_SIZE - 4) / 4;
+                        ctx.moveTo(xOffset, cellY + 2);
+                        ctx.lineTo(xOffset, cellY + GRID_SIZE - 2);
+                    }
+
                     ctx.stroke();
-                    break;
 
-                case OBJECTS.CHAIR:
-                    ctx.fillStyle = '#333';
-                    ctx.beginPath();
-                    ctx.arc(cellX + GRID_SIZE / 2, cellY + GRID_SIZE * 3 / 4, GRID_SIZE / 5, 0, Math.PI * 2);
-                    ctx.fill();
-
-                    ctx.fillStyle = '#777';
-                    ctx.fillRect(cellX + GRID_SIZE * 0.45, cellY + GRID_SIZE * 0.4, GRID_SIZE * 0.1, GRID_SIZE * 0.35);
-
-                    ctx.fillStyle = COLORS.chair;
-                    ctx.fillRect(cellX + GRID_SIZE / 4, cellY + GRID_SIZE / 4, GRID_SIZE / 2, GRID_SIZE / 3);
-
-                    ctx.fillRect(cellX + GRID_SIZE / 3, cellY, GRID_SIZE / 3, GRID_SIZE / 4);
-
-                    ctx.strokeStyle = '#555';
-                    ctx.lineWidth = 1;
-                    ctx.strokeRect(cellX + GRID_SIZE / 4, cellY + GRID_SIZE / 4, GRID_SIZE / 2, GRID_SIZE / 3);
+                    ctx.strokeStyle = '#8B4513';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(cellX + 2, cellY + 2, GRID_SIZE - 4, GRID_SIZE - 4);
                     break;
 
                 case OBJECTS.COMPUTER:
