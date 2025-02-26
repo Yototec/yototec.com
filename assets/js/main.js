@@ -157,43 +157,87 @@ class Person {
 
     drawFromFront(x, y) {
         const legSpread = this.animationFrame > 10 ? 4 : 0;
-
+        
+        // Draw legs with better shape
         ctx.fillStyle = this.uniformColor;
+        // Left leg
         ctx.fillRect(
             x - this.bodyWidth / 2,
             y + this.bodyHeight / 2,
             this.legWidth,
             this.legHeight - legSpread
         );
+        // Right leg
         ctx.fillRect(
             x + this.bodyWidth / 2 - this.legWidth,
             y + this.bodyHeight / 2,
             this.legWidth,
             this.legHeight + legSpread
         );
-
+        
+        // Draw body/uniform with rounded corners
         ctx.fillStyle = this.uniformColor;
-        ctx.fillRect(
+        this.roundedRect(
             x - this.bodyWidth / 2,
             y - this.bodyHeight / 2,
             this.bodyWidth,
-            this.bodyHeight
+            this.bodyHeight,
+            4
         );
-
+        
+        // Add shirt collar
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.moveTo(x - this.bodyWidth / 4, y - this.bodyHeight / 2 + 5);
+        ctx.lineTo(x, y - this.bodyHeight / 2 + 12);
+        ctx.lineTo(x + this.bodyWidth / 4, y - this.bodyHeight / 2 + 5);
+        ctx.fill();
+        
+        // Add ticker logo on uniform
+        this.drawTickerLogo(x, y - this.bodyHeight / 5, this.ticker);
+        
+        // Draw arms with better shape
         const armOffset = this.animationFrame > 10 ? 3 : -3;
-        ctx.fillRect(
+        ctx.fillStyle = this.uniformColor;
+        // Left arm
+        this.roundedRect(
             x - this.bodyWidth / 2 - this.armWidth,
             y - this.bodyHeight / 4 + armOffset,
             this.armWidth,
-            this.armHeight
+            this.armHeight,
+            3
         );
-        ctx.fillRect(
+        // Right arm
+        this.roundedRect(
             x + this.bodyWidth / 2,
             y - this.bodyHeight / 4 - armOffset,
             this.armWidth,
-            this.armHeight
+            this.armHeight,
+            3
         );
-
+        
+        // Draw hands
+        ctx.fillStyle = COLORS.skin;
+        ctx.beginPath();
+        ctx.arc(
+            x - this.bodyWidth / 2 - this.armWidth / 2,
+            y - this.bodyHeight / 4 + this.armHeight + armOffset,
+            this.armWidth / 2 + 1,
+            0,
+            Math.PI * 2
+        );
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(
+            x + this.bodyWidth / 2 + this.armWidth / 2,
+            y - this.bodyHeight / 4 + this.armHeight - armOffset,
+            this.armWidth / 2 + 1,
+            0,
+            Math.PI * 2
+        );
+        ctx.fill();
+        
+        // Draw head with skin color
         ctx.fillStyle = COLORS.skin;
         ctx.beginPath();
         ctx.arc(
@@ -204,7 +248,8 @@ class Person {
             Math.PI * 2
         );
         ctx.fill();
-
+        
+        // Draw eyes
         ctx.fillStyle = '#000';
         ctx.beginPath();
         ctx.arc(
@@ -224,47 +269,98 @@ class Person {
             Math.PI * 2
         );
         ctx.fill();
+        
+        // Draw mouth
+        ctx.beginPath();
+        ctx.arc(
+            x,
+            y - this.bodyHeight / 2 - this.headSize / 2 + this.headSize / 4,
+            this.headSize / 6,
+            0.1 * Math.PI,
+            0.9 * Math.PI,
+            false
+        );
+        ctx.stroke();
+        
+        // Add hair based on ticker
+        this.drawHair(x, y - this.bodyHeight / 2 - this.headSize / 2, 'front');
     }
 
     drawFromBehind(x, y) {
         const legSpread = this.animationFrame > 10 ? 4 : 0;
-
+        
+        // Draw legs with better shape
         ctx.fillStyle = this.uniformColor;
+        // Left leg
         ctx.fillRect(
             x - this.bodyWidth / 2,
             y + this.bodyHeight / 2,
             this.legWidth,
             this.legHeight - legSpread
         );
+        // Right leg
         ctx.fillRect(
             x + this.bodyWidth / 2 - this.legWidth,
             y + this.bodyHeight / 2,
             this.legWidth,
             this.legHeight + legSpread
         );
-
+        
+        // Draw body/uniform with rounded corners
         ctx.fillStyle = this.uniformColor;
-        ctx.fillRect(
+        this.roundedRect(
             x - this.bodyWidth / 2,
             y - this.bodyHeight / 2,
             this.bodyWidth,
-            this.bodyHeight
+            this.bodyHeight,
+            4
         );
-
+        
+        // Add ticker logo on back of uniform
+        this.drawTickerLogo(x, y - this.bodyHeight / 5, this.ticker);
+        
+        // Draw arms with better shape
         const armOffset = this.animationFrame > 10 ? 3 : -3;
-        ctx.fillRect(
+        ctx.fillStyle = this.uniformColor;
+        // Left arm
+        this.roundedRect(
             x - this.bodyWidth / 2 - this.armWidth,
             y - this.bodyHeight / 4 + armOffset,
             this.armWidth,
-            this.armHeight
+            this.armHeight,
+            3
         );
-        ctx.fillRect(
+        // Right arm
+        this.roundedRect(
             x + this.bodyWidth / 2,
             y - this.bodyHeight / 4 - armOffset,
             this.armWidth,
-            this.armHeight
+            this.armHeight,
+            3
         );
-
+        
+        // Draw hands
+        ctx.fillStyle = COLORS.skin;
+        ctx.beginPath();
+        ctx.arc(
+            x - this.bodyWidth / 2 - this.armWidth / 2,
+            y - this.bodyHeight / 4 + this.armHeight + armOffset,
+            this.armWidth / 2 + 1,
+            0,
+            Math.PI * 2
+        );
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(
+            x + this.bodyWidth / 2 + this.armWidth / 2,
+            y - this.bodyHeight / 4 + this.armHeight - armOffset,
+            this.armWidth / 2 + 1,
+            0,
+            Math.PI * 2
+        );
+        ctx.fill();
+        
+        // Draw head with skin color
         ctx.fillStyle = COLORS.skin;
         ctx.beginPath();
         ctx.arc(
@@ -275,42 +371,76 @@ class Person {
             Math.PI * 2
         );
         ctx.fill();
+        
+        // Add hair from behind
+        this.drawHair(x, y - this.bodyHeight / 2 - this.headSize / 2, 'back');
     }
 
     drawFromSide(x, y, side) {
         const direction = (side === 'left') ? -1 : 1;
         const legOffset = this.animationFrame > 10 ? 4 : -4;
-
+        
+        // Draw legs with better shape
         ctx.fillStyle = this.uniformColor;
+        // Front leg
         ctx.fillRect(
             x + direction * (this.bodyWidth / 4),
             y + this.bodyHeight / 2,
             this.legWidth,
             this.legHeight + legOffset
         );
+        // Back leg
         ctx.fillRect(
             x - direction * (this.bodyWidth / 4),
             y + this.bodyHeight / 2,
             this.legWidth,
             this.legHeight - legOffset
         );
-
+        
+        // Draw body/uniform with rounded corners
         ctx.fillStyle = this.uniformColor;
-        ctx.fillRect(
+        this.roundedRect(
             x - this.bodyWidth / 2,
             y - this.bodyHeight / 2,
             this.bodyWidth,
-            this.bodyHeight
+            this.bodyHeight,
+            4
         );
-
+        
+        // Add ticker symbol on side of uniform
+        ctx.font = '10px Arial';
+        ctx.fillStyle = '#fff';
+        ctx.textAlign = 'center';
+        ctx.fillText(
+            this.ticker,
+            x,
+            y
+        );
+        
+        // Draw arm with better shape
         const armOffset = this.animationFrame > 10 ? 3 : -3;
-        ctx.fillRect(
+        ctx.fillStyle = this.uniformColor;
+        this.roundedRect(
             x + direction * (this.bodyWidth / 4),
             y - this.bodyHeight / 4 + armOffset,
             this.armWidth * direction,
-            this.armHeight
+            this.armHeight,
+            3
         );
-
+        
+        // Draw hand
+        ctx.fillStyle = COLORS.skin;
+        ctx.beginPath();
+        ctx.arc(
+            x + direction * (this.bodyWidth / 4 + this.armWidth / 2 * direction),
+            y - this.bodyHeight / 4 + this.armHeight + armOffset,
+            this.armWidth / 2 + 1,
+            0,
+            Math.PI * 2
+        );
+        ctx.fill();
+        
+        // Draw head with skin color
         ctx.fillStyle = COLORS.skin;
         ctx.beginPath();
         ctx.arc(
@@ -321,7 +451,8 @@ class Person {
             Math.PI * 2
         );
         ctx.fill();
-
+        
+        // Draw eye
         ctx.fillStyle = '#000';
         ctx.beginPath();
         ctx.arc(
@@ -332,6 +463,231 @@ class Person {
             Math.PI * 2
         );
         ctx.fill();
+        
+        // Draw ear on the visible side
+        ctx.fillStyle = COLORS.skin;
+        ctx.beginPath();
+        ctx.arc(
+            x + direction * (this.bodyWidth / 4 + this.headSize / 2 - 2),
+            y - this.bodyHeight / 2 - this.headSize / 2,
+            this.headSize / 6,
+            0,
+            Math.PI * 2
+        );
+        ctx.fill();
+        
+        // Add hair from side
+        this.drawHair(x + direction * (this.bodyWidth / 4), y - this.bodyHeight / 2 - this.headSize / 2, side);
+        
+        // Draw mouth from side
+        ctx.beginPath();
+        ctx.moveTo(
+            x + direction * (this.bodyWidth / 4 + this.headSize / 8),
+            y - this.bodyHeight / 2 - this.headSize / 2 + this.headSize / 4
+        );
+        ctx.lineTo(
+            x + direction * (this.bodyWidth / 4 + this.headSize / 3),
+            y - this.bodyHeight / 2 - this.headSize / 2 + this.headSize / 4
+        );
+        ctx.stroke();
+    }
+
+    // Helper method to draw rounded rectangles
+    roundedRect(x, y, width, height, radius) {
+        ctx.beginPath();
+        ctx.moveTo(x + radius, y);
+        ctx.lineTo(x + width - radius, y);
+        ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+        ctx.lineTo(x + width, y + height - radius);
+        ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+        ctx.lineTo(x + radius, y + height);
+        ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+        ctx.lineTo(x, y + radius);
+        ctx.quadraticCurveTo(x, y, x + radius, y);
+        ctx.closePath();
+        ctx.fill();
+    }
+
+    // Helper method to draw ticker logos
+    drawTickerLogo(x, y, ticker) {
+        const logoSize = this.bodyWidth * 0.4;
+        
+        ctx.save();
+        ctx.translate(x, y);
+        
+        switch(ticker.toLowerCase()) {
+            case 'btc':
+                // Bitcoin logo
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.arc(0, 0, logoSize/2, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.fillStyle = '#F7931A';
+                ctx.font = `bold ${logoSize * 0.8}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('₿', 0, 0);
+                break;
+                
+            case 'eth':
+                // Ethereum logo
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.arc(0, 0, logoSize/2, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.fillStyle = '#627EEA';
+                ctx.font = `bold ${logoSize * 0.8}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('Ξ', 0, 0);
+                break;
+                
+            case 'sol':
+                // Solana logo
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.arc(0, 0, logoSize/2, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.fillStyle = '#00FFA3';
+                ctx.font = `bold ${logoSize * 0.5}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('SOL', 0, 0);
+                break;
+                
+            case 'doge':
+                // Dogecoin logo
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.arc(0, 0, logoSize/2, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.fillStyle = '#C3A634';
+                ctx.font = `bold ${logoSize * 0.4}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('DOGE', 0, -2);
+                
+                // Simple dog ears
+                ctx.beginPath();
+                ctx.moveTo(-logoSize/4, -logoSize/3);
+                ctx.lineTo(-logoSize/2, -logoSize/2);
+                ctx.lineTo(-logoSize/5, -logoSize/5);
+                ctx.fill();
+                
+                ctx.beginPath();
+                ctx.moveTo(logoSize/4, -logoSize/3);
+                ctx.lineTo(logoSize/2, -logoSize/2);
+                ctx.lineTo(logoSize/5, -logoSize/5);
+                ctx.fill();
+                break;
+        }
+        
+        ctx.restore();
+    }
+
+    // Helper method to draw hair based on character
+    drawHair(x, y, view) {
+        const hairColors = {
+            btc: '#8B4513', // brown hair for Bitcoin
+            eth: '#000000', // black hair for Ethereum
+            sol: '#FFD700', // blonde hair for Solana
+            doge: '#A0522D'  // auburn hair for Doge
+        };
+        
+        ctx.fillStyle = hairColors[this.ticker.toLowerCase()];
+        
+        if (view === 'front') {
+            // Front view hair
+            ctx.beginPath();
+            ctx.arc(x, y - this.headSize/6, this.headSize/2 + 2, Math.PI, 2 * Math.PI);
+            ctx.fill();
+            
+            // Add hair tufts based on character
+            if (this.ticker.toLowerCase() === 'btc') {
+                // Short business-like hair
+                ctx.beginPath();
+                ctx.moveTo(x - this.headSize/2, y - this.headSize/3);
+                ctx.quadraticCurveTo(x - this.headSize/4, y - this.headSize/2, x, y - this.headSize/2);
+                ctx.quadraticCurveTo(x + this.headSize/4, y - this.headSize/2, x + this.headSize/2, y - this.headSize/3);
+                ctx.fill();
+            } else if (this.ticker.toLowerCase() === 'eth') {
+                // Modern tech look
+                ctx.beginPath();
+                ctx.moveTo(x - this.headSize/2, y - this.headSize/4);
+                ctx.quadraticCurveTo(x, y - this.headSize, x + this.headSize/2, y - this.headSize/4);
+                ctx.fill();
+            } else if (this.ticker.toLowerCase() === 'sol') {
+                // Trendy hairstyle
+                ctx.beginPath();
+                ctx.moveTo(x - this.headSize/2, y - this.headSize/3);
+                ctx.quadraticCurveTo(x, y - this.headSize*0.9, x + this.headSize/2, y - this.headSize/3);
+                ctx.fill();
+            } else if (this.ticker.toLowerCase() === 'doge') {
+                // Fun, playful hair
+                ctx.beginPath();
+                for (let i = -3; i <= 3; i++) {
+                    ctx.moveTo(x + i * (this.headSize/6), y - this.headSize/2);
+                    ctx.lineTo(x + i * (this.headSize/6), y - this.headSize*0.7 - Math.abs(i)*2);
+                }
+                ctx.stroke();
+                ctx.fill();
+            }
+        } else if (view === 'back') {
+            // Back view hair
+            ctx.beginPath();
+            ctx.arc(x, y, this.headSize/2 + 2, 0, Math.PI);
+            ctx.fill();
+            
+            // Add character-specific back hair
+            if (this.ticker.toLowerCase() === 'eth' || this.ticker.toLowerCase() === 'sol') {
+                // Longer hair in back for some characters
+                ctx.beginPath();
+                ctx.moveTo(x - this.headSize/2, y);
+                ctx.quadraticCurveTo(x, y + this.headSize/3, x + this.headSize/2, y);
+                ctx.fill();
+            }
+        } else {
+            // Side view hair (left or right)
+            const direction = view === 'left' ? -1 : 1;
+            
+            // Basic side hair shape
+            ctx.beginPath();
+            ctx.arc(x, y, this.headSize/2 + 2, Math.PI * 0.5, Math.PI * 1.5);
+            ctx.fill();
+            
+            // Character specific side hair
+            if (this.ticker.toLowerCase() === 'btc') {
+                // Short business cut
+                ctx.beginPath();
+                ctx.arc(x, y - this.headSize/4, this.headSize/2, Math.PI * 1.1, Math.PI * 1.9);
+                ctx.fill();
+            } else if (this.ticker.toLowerCase() === 'eth') {
+                // Modern tech look
+                ctx.beginPath();
+                ctx.moveTo(x - direction * this.headSize/4, y - this.headSize/2);
+                ctx.quadraticCurveTo(x, y - this.headSize*0.8, x + direction * this.headSize/3, y - this.headSize/4);
+                ctx.fill();
+            } else if (this.ticker.toLowerCase() === 'sol') {
+                // Trendy hairstyle
+                ctx.beginPath();
+                ctx.moveTo(x - direction * this.headSize/4, y - this.headSize/2);
+                ctx.quadraticCurveTo(x, y - this.headSize*0.9, x + direction * this.headSize/4, y - this.headSize/2);
+                ctx.fill();
+            } else if (this.ticker.toLowerCase() === 'doge') {
+                // Fun, playful hair
+                ctx.beginPath();
+                for (let i = -1; i <= 1; i++) {
+                    ctx.moveTo(x + i * (this.headSize/6), y - this.headSize/2);
+                    ctx.lineTo(x + i * (this.headSize/6), y - this.headSize*0.7 - Math.abs(i)*2);
+                }
+                ctx.stroke();
+                ctx.fill();
+            }
+        }
     }
 
     update() {
