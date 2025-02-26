@@ -918,7 +918,7 @@ class Person {
                 else if (this.stateTime > 12) {
                     this.state = 'idle';
                     this.stateTime = 0;
-                    
+
                     // Occasionally say something about market insights when finishing
                     if (Math.random() < 0.4) {
                         const marketInsights = [
@@ -1268,7 +1268,7 @@ class Person {
 
     findWindowLocation() {
         const windowLocations = [];
-        
+
         // Check top wall windows
         for (let x = 3; x < COLS - 3; x += 3) {
             if (office[0][x] === OBJECTS.WINDOW || office[0][x + 1] === OBJECTS.WINDOW) {
@@ -1277,7 +1277,7 @@ class Person {
                 if (isWalkable(x + 1, 1)) windowLocations.push({ x: x + 1, y: 1 });
             }
         }
-        
+
         // Check right wall windows
         for (let y = 3; y < ROWS - 6; y += 3) {
             if (office[y][COLS - 1] === OBJECTS.WINDOW || office[y + 1][COLS - 1] === OBJECTS.WINDOW) {
@@ -1286,12 +1286,12 @@ class Person {
                 if (isWalkable(COLS - 2, y + 1)) windowLocations.push({ x: COLS - 2, y: y + 1 });
             }
         }
-        
+
         // If we found valid cells, return a random one
         if (windowLocations.length > 0) {
             return windowLocations[Math.floor(Math.random() * windowLocations.length)];
         }
-        
+
         // Fallback to a position near a wall if no valid window locations
         return { x: 1, y: 1 };
     }
@@ -1310,14 +1310,14 @@ class Person {
             if (this.x > 0 && office[0][this.x - 1] === OBJECTS.WINDOW) return true;
             if (this.x < COLS - 1 && office[0][this.x + 1] === OBJECTS.WINDOW) return true;
         }
-        
+
         // Check if adjacent to a window on the right wall
         if (this.x === COLS - 2) {
             if (office[this.y][COLS - 1] === OBJECTS.WINDOW) return true;
             if (this.y > 0 && office[this.y - 1][COLS - 1] === OBJECTS.WINDOW) return true;
             if (this.y < ROWS - 1 && office[this.y + 1][COLS - 1] === OBJECTS.WINDOW) return true;
         }
-        
+
         return false;
     }
 }
@@ -1594,19 +1594,72 @@ function drawOffice() {
             const cellY = y * GRID_SIZE;
             switch (office[y][x]) {
                 case OBJECTS.CARPET:
+                    // Base carpet color
                     ctx.fillStyle = COLORS.carpet;
                     ctx.fillRect(cellX, cellY, GRID_SIZE, GRID_SIZE);
-                    ctx.strokeStyle = '#f0f0f0';
-                    ctx.lineWidth = 0.5;
-                    ctx.beginPath();
-                    if ((x + y) % 2 === 0) {
-                        ctx.moveTo(cellX, cellY);
-                        ctx.lineTo(cellX + GRID_SIZE, cellY + GRID_SIZE);
+
+                    // Add carpet texture and pattern
+                    const patternType = (x + Math.floor(y / 2)) % 3; // Create different pattern sections
+
+                    // Draw carpet fibers and texture
+                    ctx.strokeStyle = ((x + y) % 2 === 0) ? '#e5e0da' : '#d8d4ce';
+                    ctx.lineWidth = 0.4;
+
+                    if (patternType === 0) {
+                        // Diagonal texture pattern
+                        ctx.beginPath();
+                        for (let i = 0; i < GRID_SIZE; i += 3) {
+                            ctx.moveTo(cellX, cellY + i);
+                            ctx.lineTo(cellX + i, cellY);
+
+                            ctx.moveTo(cellX + GRID_SIZE, cellY + i);
+                            ctx.lineTo(cellX + GRID_SIZE - i, cellY);
+
+                            ctx.moveTo(cellX + i, cellY + GRID_SIZE);
+                            ctx.lineTo(cellX, cellY + GRID_SIZE - i);
+
+                            ctx.moveTo(cellX + GRID_SIZE - i, cellY + GRID_SIZE);
+                            ctx.lineTo(cellX + GRID_SIZE, cellY + GRID_SIZE - i);
+                        }
+                        ctx.stroke();
+                    } else if (patternType === 1) {
+                        // Square pattern with subtle details
+                        ctx.beginPath();
+                        ctx.rect(cellX + 4, cellY + 4, GRID_SIZE - 8, GRID_SIZE - 8);
+                        ctx.stroke();
+
+                        ctx.beginPath();
+                        ctx.rect(cellX + 8, cellY + 8, GRID_SIZE - 16, GRID_SIZE - 16);
+                        ctx.stroke();
                     } else {
-                        ctx.moveTo(cellX + GRID_SIZE, cellY);
-                        ctx.lineTo(cellX, cellY + GRID_SIZE);
+                        // Dotted texture effect
+                        for (let i = 4; i < GRID_SIZE; i += 6) {
+                            for (let j = 4; j < GRID_SIZE; j += 6) {
+                                ctx.beginPath();
+                                ctx.arc(cellX + i, cellY + j, 0.5, 0, Math.PI * 2);
+                                ctx.stroke();
+                            }
+                        }
                     }
-                    ctx.stroke();
+
+                    // Add subtle color variation to create depth
+                    if ((x * y) % 5 === 0) {
+                        ctx.fillStyle = 'rgba(0, 0, 0, 0.03)';
+                        ctx.fillRect(cellX, cellY, GRID_SIZE, GRID_SIZE);
+                    }
+
+                    // Add occasional "wear" marks on the carpet
+                    if ((x * y) % 31 === 0) {
+                        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+                        const wearSize = 3 + Math.random() * 4;
+                        ctx.beginPath();
+                        ctx.arc(
+                            cellX + GRID_SIZE / 2 + (Math.random() * 6 - 3),
+                            cellY + GRID_SIZE / 2 + (Math.random() * 6 - 3),
+                            wearSize, 0, Math.PI * 2
+                        );
+                        ctx.fill();
+                    }
                     break;
 
                 case OBJECTS.WALL:
@@ -1680,7 +1733,7 @@ function drawOffice() {
                     // Draw desk surface under computer
                     ctx.fillStyle = '#f5f5f5';
                     ctx.fillRect(cellX, cellY, GRID_SIZE, GRID_SIZE);
-                    
+
                     // Monitor stand - more elegant design
                     ctx.fillStyle = '#222222';
                     ctx.beginPath();
@@ -1690,7 +1743,7 @@ function drawOffice() {
                     ctx.lineTo(cellX + GRID_SIZE * 0.45, cellY + GRID_SIZE * 0.85);
                     ctx.closePath();
                     ctx.fill();
-                    
+
                     // Stand base
                     ctx.fillStyle = '#333333';
                     ctx.beginPath();
@@ -1702,7 +1755,7 @@ function drawOffice() {
                         0, 0, Math.PI * 2
                     );
                     ctx.fill();
-                    
+
                     // Neck of the stand
                     ctx.fillStyle = '#222222';
                     ctx.fillRect(
@@ -1711,7 +1764,7 @@ function drawOffice() {
                         GRID_SIZE * 0.06,
                         GRID_SIZE * 0.2
                     );
-                    
+
                     // Monitor frame - outside bezel
                     ctx.fillStyle = COLORS.computer;
                     roundedRect(
@@ -1722,7 +1775,7 @@ function drawOffice() {
                         GRID_SIZE * 0.45,
                         4
                     );
-                    
+
                     // Screen - inside of bezel
                     ctx.fillStyle = COLORS.screen;
                     roundedRect(
@@ -1733,34 +1786,34 @@ function drawOffice() {
                         GRID_SIZE * 0.41,
                         2
                     );
-                    
+
                     // Determine what ticker to show based on location
                     let ticker = '';
                     const deskX = Math.floor(cellX / GRID_SIZE);
                     const deskY = Math.floor(cellY / GRID_SIZE);
-                    
+
                     if (deskX < COLS / 2 && deskY < ROWS / 2) ticker = 'btc';
                     else if (deskX < COLS / 2) ticker = 'eth';
                     else if (deskY < ROWS / 2) ticker = 'sol';
                     else ticker = 'doge';
-                    
+
                     // Chart data based on ticker
-                    const chartColor = ticker === 'btc' ? '#F7931A' : 
-                                       ticker === 'eth' ? '#627EEA' : 
-                                       ticker === 'sol' ? '#00FFA3' : '#C3A634';
-                    
+                    const chartColor = ticker === 'btc' ? '#F7931A' :
+                        ticker === 'eth' ? '#627EEA' :
+                            ticker === 'sol' ? '#00FFA3' : '#C3A634';
+
                     // Draw screen content - price chart
                     ctx.strokeStyle = chartColor;
                     ctx.lineWidth = 1.5;
                     ctx.beginPath();
                     ctx.moveTo(cellX + GRID_SIZE * 0.18, cellY + GRID_SIZE * 0.32);
-                    
+
                     // Create a price chart specific to the ticker
                     const points = 8;
-                    const volatility = ticker === 'btc' ? 0.05 : 
-                                      ticker === 'eth' ? 0.07 : 
-                                      ticker === 'sol' ? 0.09 : 0.11;
-                    
+                    const volatility = ticker === 'btc' ? 0.05 :
+                        ticker === 'eth' ? 0.07 :
+                            ticker === 'sol' ? 0.09 : 0.11;
+
                     // Generate the chart line
                     let prevY = cellY + GRID_SIZE * (0.32 - Math.random() * 0.1);
                     for (let i = 1; i <= points; i++) {
@@ -1769,13 +1822,13 @@ function drawOffice() {
                         const change = Math.random() * volatility * direction;
                         const y = prevY + change * GRID_SIZE;
                         // Keep the chart within the screen bounds
-                        const yBounded = Math.max(cellY + GRID_SIZE * 0.13, 
-                                         Math.min(cellY + GRID_SIZE * 0.52, y));
+                        const yBounded = Math.max(cellY + GRID_SIZE * 0.13,
+                            Math.min(cellY + GRID_SIZE * 0.52, y));
                         ctx.lineTo(x, yBounded);
                         prevY = yBounded;
                     }
                     ctx.stroke();
-                    
+
                     // Screen horizontal lines (data rows)
                     ctx.strokeStyle = '#ffffff';
                     ctx.lineWidth = 0.5;
@@ -1787,7 +1840,7 @@ function drawOffice() {
                         ctx.stroke();
                     }
                     ctx.globalAlpha = 1.0;
-                    
+
                     // Small indicator light
                     ctx.fillStyle = '#00ff00';
                     ctx.beginPath();
@@ -1798,7 +1851,7 @@ function drawOffice() {
                         0, Math.PI * 2
                     );
                     ctx.fill();
-                    
+
                     // Add logo/ticker to the screen
                     ctx.fillStyle = '#ffffff';
                     ctx.font = '6px Arial';
@@ -1808,7 +1861,7 @@ function drawOffice() {
                         cellX + GRID_SIZE * 0.19,
                         cellY + GRID_SIZE * 0.17
                     );
-                    
+
                     // Price indicators
                     ctx.font = '6px Arial';
                     ctx.fillText(
@@ -1816,7 +1869,7 @@ function drawOffice() {
                         cellX + GRID_SIZE * 0.72,
                         cellY + GRID_SIZE * 0.17
                     );
-                    
+
                     // Screen reflection
                     ctx.fillStyle = '#ffffff';
                     ctx.globalAlpha = 0.05;
@@ -1828,7 +1881,7 @@ function drawOffice() {
                     ctx.closePath();
                     ctx.fill();
                     ctx.globalAlpha = 1.0;
-                    
+
                     // Draw keyboard
                     ctx.fillStyle = '#222222';
                     roundedRect(
@@ -1839,7 +1892,7 @@ function drawOffice() {
                         GRID_SIZE * 0.1,
                         2
                     );
-                    
+
                     // Keyboard keys
                     ctx.fillStyle = '#444444';
                     for (let i = 0; i < 3; i++) {
