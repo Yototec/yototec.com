@@ -844,13 +844,22 @@ function update() {
 
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    ctx.save();
+
+    if (isMobileView) {
+        ctx.translate(canvasOffset.x + 50, canvasOffset.y);
+    }
+
     drawOffice();
     drawPeople();
+
+    ctx.restore();
 }
 
 function animate() {
     update();
-    draw();
+    requestAnimationFrame(draw);
 }
 
 function connectToApi() {
@@ -1362,6 +1371,20 @@ let isMobileView = window.innerWidth < 768;
 function setupMobileScrolling() {
     if (!canvas) return;
 
+    // Reset canvas offset when switching between mobile and desktop modes
+    window.addEventListener('resize', () => {
+        const newIsMobileView = window.innerWidth < 768;
+
+        // Reset offset when switching view modes
+        if (isMobileView !== newIsMobileView) {
+            canvasOffset = { x: 0, y: 0 };
+            // Force a redraw
+            requestAnimationFrame(draw);
+        }
+
+        isMobileView = newIsMobileView;
+    });
+
     canvas.addEventListener('touchstart', (e) => {
         if (isMobileView) {
             isDragging = true;
@@ -1377,10 +1400,21 @@ function setupMobileScrolling() {
 
             canvasOffset.x += deltaX;
 
-            const maxScroll = canvas.width - window.innerWidth;
-            canvasOffset.x = Math.min(0, Math.max(-maxScroll, canvasOffset.x));
+            // Get actual canvas dimensions
+            const canvasRect = canvas.getBoundingClientRect();
+
+            // Add extra padding (25%) to allow more scrolling area on both sides
+            const scrollPadding = canvasRect.width * 0.25;
+            const maxScroll = Math.max(0, canvas.width - canvasRect.width + scrollPadding);
+
+            // Allow scrolling with added padding
+            canvasOffset.x = Math.min(scrollPadding, Math.max(-maxScroll, canvasOffset.x));
 
             startDragX = currentX;
+
+            // Force an immediate redraw
+            requestAnimationFrame(draw);
+
             e.preventDefault();
         }
     }, { passive: false });
@@ -1401,10 +1435,20 @@ function setupMobileScrolling() {
             const deltaX = e.clientX - startDragX;
             canvasOffset.x += deltaX;
 
-            const maxScroll = canvas.width - window.innerWidth;
-            canvasOffset.x = Math.min(0, Math.max(-maxScroll, canvasOffset.x));
+            // Get actual canvas dimensions
+            const canvasRect = canvas.getBoundingClientRect();
+
+            // Add extra padding (25%) to allow more scrolling area on both sides
+            const scrollPadding = canvasRect.width * 0.25;
+            const maxScroll = Math.max(0, canvas.width - canvasRect.width + scrollPadding);
+
+            // Allow scrolling with added padding
+            canvasOffset.x = Math.min(scrollPadding, Math.max(-maxScroll, canvasOffset.x));
 
             startDragX = e.clientX;
+
+            // Force an immediate redraw
+            requestAnimationFrame(draw);
         }
     });
 
@@ -1412,27 +1456,10 @@ function setupMobileScrolling() {
         isDragging = false;
     });
 
-    window.addEventListener('resize', () => {
-        isMobileView = window.innerWidth < 768;
-        if (!isMobileView) {
-            canvasOffset = { x: 0, y: 0 };
-        }
+    // Also handle mouse leaving the canvas
+    canvas.addEventListener('mouseleave', () => {
+        isDragging = false;
     });
-}
-
-function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    ctx.save();
-
-    if (isMobileView) {
-        ctx.translate(canvasOffset.x, canvasOffset.y);
-    }
-
-    drawOffice();
-    drawPeople();
-
-    ctx.restore();
 }
 
 start();
