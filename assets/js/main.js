@@ -157,7 +157,7 @@ class Person {
 
     drawFromFront(x, y) {
         const legSpread = this.animationFrame > 10 ? 4 : 0;
-        
+
         // Draw legs with better shape
         ctx.fillStyle = this.uniformColor;
         // Left leg
@@ -174,7 +174,7 @@ class Person {
             this.legWidth,
             this.legHeight + legSpread
         );
-        
+
         // Draw body/uniform with rounded corners
         ctx.fillStyle = this.uniformColor;
         this.roundedRect(
@@ -184,7 +184,7 @@ class Person {
             this.bodyHeight,
             4
         );
-        
+
         // Add shirt collar
         ctx.fillStyle = '#ffffff';
         ctx.beginPath();
@@ -192,10 +192,10 @@ class Person {
         ctx.lineTo(x, y - this.bodyHeight / 2 + 12);
         ctx.lineTo(x + this.bodyWidth / 4, y - this.bodyHeight / 2 + 5);
         ctx.fill();
-        
+
         // Add ticker logo on uniform
         this.drawTickerLogo(x, y - this.bodyHeight / 5, this.ticker);
-        
+
         // Draw arms with better shape
         const armOffset = this.animationFrame > 10 ? 3 : -3;
         ctx.fillStyle = this.uniformColor;
@@ -215,7 +215,7 @@ class Person {
             this.armHeight,
             3
         );
-        
+
         // Draw hands
         ctx.fillStyle = COLORS.skin;
         ctx.beginPath();
@@ -236,7 +236,7 @@ class Person {
             Math.PI * 2
         );
         ctx.fill();
-        
+
         // Draw head with skin color
         ctx.fillStyle = COLORS.skin;
         ctx.beginPath();
@@ -248,7 +248,7 @@ class Person {
             Math.PI * 2
         );
         ctx.fill();
-        
+
         // Draw eyes
         ctx.fillStyle = '#000';
         ctx.beginPath();
@@ -269,7 +269,7 @@ class Person {
             Math.PI * 2
         );
         ctx.fill();
-        
+
         // Draw mouth
         ctx.beginPath();
         ctx.arc(
@@ -281,14 +281,14 @@ class Person {
             false
         );
         ctx.stroke();
-        
+
         // Add hair based on ticker
         this.drawHair(x, y - this.bodyHeight / 2 - this.headSize / 2, 'front');
     }
 
     drawFromBehind(x, y) {
         const legSpread = this.animationFrame > 10 ? 4 : 0;
-        
+
         // Draw legs with better shape
         ctx.fillStyle = this.uniformColor;
         // Left leg
@@ -305,7 +305,7 @@ class Person {
             this.legWidth,
             this.legHeight + legSpread
         );
-        
+
         // Draw body/uniform with rounded corners
         ctx.fillStyle = this.uniformColor;
         this.roundedRect(
@@ -315,10 +315,10 @@ class Person {
             this.bodyHeight,
             4
         );
-        
+
         // Add ticker logo on back of uniform
         this.drawTickerLogo(x, y - this.bodyHeight / 5, this.ticker);
-        
+
         // Draw arms with better shape
         const armOffset = this.animationFrame > 10 ? 3 : -3;
         ctx.fillStyle = this.uniformColor;
@@ -338,7 +338,7 @@ class Person {
             this.armHeight,
             3
         );
-        
+
         // Draw hands
         ctx.fillStyle = COLORS.skin;
         ctx.beginPath();
@@ -359,7 +359,7 @@ class Person {
             Math.PI * 2
         );
         ctx.fill();
-        
+
         // Draw head with skin color
         ctx.fillStyle = COLORS.skin;
         ctx.beginPath();
@@ -371,7 +371,7 @@ class Person {
             Math.PI * 2
         );
         ctx.fill();
-        
+
         // Add hair from behind
         this.drawHair(x, y - this.bodyHeight / 2 - this.headSize / 2, 'back');
     }
@@ -379,7 +379,7 @@ class Person {
     drawFromSide(x, y, side) {
         const direction = (side === 'left') ? -1 : 1;
         const legOffset = this.animationFrame > 10 ? 4 : -4;
-        
+
         // Draw legs with better shape
         ctx.fillStyle = this.uniformColor;
         // Front leg
@@ -396,7 +396,7 @@ class Person {
             this.legWidth,
             this.legHeight - legOffset
         );
-        
+
         // Draw body/uniform with rounded corners
         ctx.fillStyle = this.uniformColor;
         this.roundedRect(
@@ -406,7 +406,7 @@ class Person {
             this.bodyHeight,
             4
         );
-        
+
         // Add ticker symbol on side of uniform
         ctx.font = '10px Arial';
         ctx.fillStyle = '#fff';
@@ -416,7 +416,7 @@ class Person {
             x,
             y
         );
-        
+
         // Draw arm with better shape
         const armOffset = this.animationFrame > 10 ? 3 : -3;
         ctx.fillStyle = this.uniformColor;
@@ -427,7 +427,7 @@ class Person {
             this.armHeight,
             3
         );
-        
+
         // Draw hand
         ctx.fillStyle = COLORS.skin;
         ctx.beginPath();
@@ -439,7 +439,7 @@ class Person {
             Math.PI * 2
         );
         ctx.fill();
-        
+
         // Draw head with skin color
         ctx.fillStyle = COLORS.skin;
         ctx.beginPath();
@@ -451,7 +451,7 @@ class Person {
             Math.PI * 2
         );
         ctx.fill();
-        
+
         // Draw eye
         ctx.fillStyle = '#000';
         ctx.beginPath();
@@ -463,7 +463,7 @@ class Person {
             Math.PI * 2
         );
         ctx.fill();
-        
+
         // Draw ear on the visible side
         ctx.fillStyle = COLORS.skin;
         ctx.beginPath();
@@ -475,10 +475,10 @@ class Person {
             Math.PI * 2
         );
         ctx.fill();
-        
+
         // Add hair from side
         this.drawHair(x + direction * (this.bodyWidth / 4), y - this.bodyHeight / 2 - this.headSize / 2, side);
-        
+
         // Draw mouth from side
         ctx.beginPath();
         ctx.moveTo(
@@ -511,81 +511,81 @@ class Person {
     // Helper method to draw ticker logos
     drawTickerLogo(x, y, ticker) {
         const logoSize = this.bodyWidth * 0.4;
-        
+
         ctx.save();
         ctx.translate(x, y);
-        
-        switch(ticker.toLowerCase()) {
+
+        switch (ticker.toLowerCase()) {
             case 'btc':
                 // Bitcoin logo
                 ctx.fillStyle = '#ffffff';
                 ctx.beginPath();
-                ctx.arc(0, 0, logoSize/2, 0, Math.PI * 2);
+                ctx.arc(0, 0, logoSize / 2, 0, Math.PI * 2);
                 ctx.fill();
-                
+
                 ctx.fillStyle = '#F7931A';
                 ctx.font = `bold ${logoSize * 0.8}px Arial`;
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
                 ctx.fillText('₿', 0, 0);
                 break;
-                
+
             case 'eth':
                 // Ethereum logo
                 ctx.fillStyle = '#ffffff';
                 ctx.beginPath();
-                ctx.arc(0, 0, logoSize/2, 0, Math.PI * 2);
+                ctx.arc(0, 0, logoSize / 2, 0, Math.PI * 2);
                 ctx.fill();
-                
+
                 ctx.fillStyle = '#627EEA';
                 ctx.font = `bold ${logoSize * 0.8}px Arial`;
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
                 ctx.fillText('Ξ', 0, 0);
                 break;
-                
+
             case 'sol':
                 // Solana logo
                 ctx.fillStyle = '#ffffff';
                 ctx.beginPath();
-                ctx.arc(0, 0, logoSize/2, 0, Math.PI * 2);
+                ctx.arc(0, 0, logoSize / 2, 0, Math.PI * 2);
                 ctx.fill();
-                
+
                 ctx.fillStyle = '#00FFA3';
                 ctx.font = `bold ${logoSize * 0.5}px Arial`;
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
                 ctx.fillText('SOL', 0, 0);
                 break;
-                
+
             case 'doge':
                 // Dogecoin logo
                 ctx.fillStyle = '#ffffff';
                 ctx.beginPath();
-                ctx.arc(0, 0, logoSize/2, 0, Math.PI * 2);
+                ctx.arc(0, 0, logoSize / 2, 0, Math.PI * 2);
                 ctx.fill();
-                
+
                 ctx.fillStyle = '#C3A634';
                 ctx.font = `bold ${logoSize * 0.4}px Arial`;
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
                 ctx.fillText('DOGE', 0, -2);
-                
+
                 // Simple dog ears
                 ctx.beginPath();
-                ctx.moveTo(-logoSize/4, -logoSize/3);
-                ctx.lineTo(-logoSize/2, -logoSize/2);
-                ctx.lineTo(-logoSize/5, -logoSize/5);
+                ctx.moveTo(-logoSize / 4, -logoSize / 3);
+                ctx.lineTo(-logoSize / 2, -logoSize / 2);
+                ctx.lineTo(-logoSize / 5, -logoSize / 5);
                 ctx.fill();
-                
+
                 ctx.beginPath();
-                ctx.moveTo(logoSize/4, -logoSize/3);
-                ctx.lineTo(logoSize/2, -logoSize/2);
-                ctx.lineTo(logoSize/5, -logoSize/5);
+                ctx.moveTo(logoSize / 4, -logoSize / 3);
+                ctx.lineTo(logoSize / 2, -logoSize / 2);
+                ctx.lineTo(logoSize / 5, -logoSize / 5);
                 ctx.fill();
                 break;
         }
-        
+
         ctx.restore();
     }
 
@@ -597,41 +597,41 @@ class Person {
             sol: '#FFD700', // blonde hair for Solana
             doge: '#A0522D'  // auburn hair for Doge
         };
-        
+
         ctx.fillStyle = hairColors[this.ticker.toLowerCase()];
-        
+
         if (view === 'front') {
             // Front view hair
             ctx.beginPath();
-            ctx.arc(x, y - this.headSize/6, this.headSize/2 + 2, Math.PI, 2 * Math.PI);
+            ctx.arc(x, y - this.headSize / 6, this.headSize / 2 + 2, Math.PI, 2 * Math.PI);
             ctx.fill();
-            
+
             // Add hair tufts based on character
             if (this.ticker.toLowerCase() === 'btc') {
                 // Short business-like hair
                 ctx.beginPath();
-                ctx.moveTo(x - this.headSize/2, y - this.headSize/3);
-                ctx.quadraticCurveTo(x - this.headSize/4, y - this.headSize/2, x, y - this.headSize/2);
-                ctx.quadraticCurveTo(x + this.headSize/4, y - this.headSize/2, x + this.headSize/2, y - this.headSize/3);
+                ctx.moveTo(x - this.headSize / 2, y - this.headSize / 3);
+                ctx.quadraticCurveTo(x - this.headSize / 4, y - this.headSize / 2, x, y - this.headSize / 2);
+                ctx.quadraticCurveTo(x + this.headSize / 4, y - this.headSize / 2, x + this.headSize / 2, y - this.headSize / 3);
                 ctx.fill();
             } else if (this.ticker.toLowerCase() === 'eth') {
                 // Modern tech look
                 ctx.beginPath();
-                ctx.moveTo(x - this.headSize/2, y - this.headSize/4);
-                ctx.quadraticCurveTo(x, y - this.headSize, x + this.headSize/2, y - this.headSize/4);
+                ctx.moveTo(x - this.headSize / 2, y - this.headSize / 4);
+                ctx.quadraticCurveTo(x, y - this.headSize, x + this.headSize / 2, y - this.headSize / 4);
                 ctx.fill();
             } else if (this.ticker.toLowerCase() === 'sol') {
                 // Trendy hairstyle
                 ctx.beginPath();
-                ctx.moveTo(x - this.headSize/2, y - this.headSize/3);
-                ctx.quadraticCurveTo(x, y - this.headSize*0.9, x + this.headSize/2, y - this.headSize/3);
+                ctx.moveTo(x - this.headSize / 2, y - this.headSize / 3);
+                ctx.quadraticCurveTo(x, y - this.headSize * 0.9, x + this.headSize / 2, y - this.headSize / 3);
                 ctx.fill();
             } else if (this.ticker.toLowerCase() === 'doge') {
                 // Fun, playful hair
                 ctx.beginPath();
                 for (let i = -3; i <= 3; i++) {
-                    ctx.moveTo(x + i * (this.headSize/6), y - this.headSize/2);
-                    ctx.lineTo(x + i * (this.headSize/6), y - this.headSize*0.7 - Math.abs(i)*2);
+                    ctx.moveTo(x + i * (this.headSize / 6), y - this.headSize / 2);
+                    ctx.lineTo(x + i * (this.headSize / 6), y - this.headSize * 0.7 - Math.abs(i) * 2);
                 }
                 ctx.stroke();
                 ctx.fill();
@@ -639,50 +639,50 @@ class Person {
         } else if (view === 'back') {
             // Back view hair
             ctx.beginPath();
-            ctx.arc(x, y, this.headSize/2 + 2, 0, Math.PI);
+            ctx.arc(x, y, this.headSize / 2 + 2, 0, Math.PI);
             ctx.fill();
-            
+
             // Add character-specific back hair
             if (this.ticker.toLowerCase() === 'eth' || this.ticker.toLowerCase() === 'sol') {
                 // Longer hair in back for some characters
                 ctx.beginPath();
-                ctx.moveTo(x - this.headSize/2, y);
-                ctx.quadraticCurveTo(x, y + this.headSize/3, x + this.headSize/2, y);
+                ctx.moveTo(x - this.headSize / 2, y);
+                ctx.quadraticCurveTo(x, y + this.headSize / 3, x + this.headSize / 2, y);
                 ctx.fill();
             }
         } else {
             // Side view hair (left or right)
             const direction = view === 'left' ? -1 : 1;
-            
+
             // Basic side hair shape
             ctx.beginPath();
-            ctx.arc(x, y, this.headSize/2 + 2, Math.PI * 0.5, Math.PI * 1.5);
+            ctx.arc(x, y, this.headSize / 2 + 2, Math.PI * 0.5, Math.PI * 1.5);
             ctx.fill();
-            
+
             // Character specific side hair
             if (this.ticker.toLowerCase() === 'btc') {
                 // Short business cut
                 ctx.beginPath();
-                ctx.arc(x, y - this.headSize/4, this.headSize/2, Math.PI * 1.1, Math.PI * 1.9);
+                ctx.arc(x, y - this.headSize / 4, this.headSize / 2, Math.PI * 1.1, Math.PI * 1.9);
                 ctx.fill();
             } else if (this.ticker.toLowerCase() === 'eth') {
                 // Modern tech look
                 ctx.beginPath();
-                ctx.moveTo(x - direction * this.headSize/4, y - this.headSize/2);
-                ctx.quadraticCurveTo(x, y - this.headSize*0.8, x + direction * this.headSize/3, y - this.headSize/4);
+                ctx.moveTo(x - direction * this.headSize / 4, y - this.headSize / 2);
+                ctx.quadraticCurveTo(x, y - this.headSize * 0.8, x + direction * this.headSize / 3, y - this.headSize / 4);
                 ctx.fill();
             } else if (this.ticker.toLowerCase() === 'sol') {
                 // Trendy hairstyle
                 ctx.beginPath();
-                ctx.moveTo(x - direction * this.headSize/4, y - this.headSize/2);
-                ctx.quadraticCurveTo(x, y - this.headSize*0.9, x + direction * this.headSize/4, y - this.headSize/2);
+                ctx.moveTo(x - direction * this.headSize / 4, y - this.headSize / 2);
+                ctx.quadraticCurveTo(x, y - this.headSize * 0.9, x + direction * this.headSize / 4, y - this.headSize / 2);
                 ctx.fill();
             } else if (this.ticker.toLowerCase() === 'doge') {
                 // Fun, playful hair
                 ctx.beginPath();
                 for (let i = -1; i <= 1; i++) {
-                    ctx.moveTo(x + i * (this.headSize/6), y - this.headSize/2);
-                    ctx.lineTo(x + i * (this.headSize/6), y - this.headSize*0.7 - Math.abs(i)*2);
+                    ctx.moveTo(x + i * (this.headSize / 6), y - this.headSize / 2);
+                    ctx.lineTo(x + i * (this.headSize / 6), y - this.headSize * 0.7 - Math.abs(i) * 2);
                 }
                 ctx.stroke();
                 ctx.fill();
@@ -996,19 +996,13 @@ function initOffice() {
     createWorkstation(COLS - 10, 5);    // SOL
     createWorkstation(COLS - 10, 15);   // DOGE
 
-    office[Math.floor(ROWS / 2)][Math.floor(COLS / 2)] = OBJECTS.COFFEE;
-
-    const plantPositions = [
-        { x: 3, y: 3 },
-        { x: COLS - 4, y: 3 },
-        { x: 3, y: ROWS - 4 },
-        { x: COLS - 4, y: ROWS - 4 },
-        { x: Math.floor(COLS / 2), y: 3 },
-        { x: Math.floor(COLS / 2), y: ROWS - 4 }
-    ];
-    for (const pos of plantPositions) {
-        office[pos.y][pos.x] = OBJECTS.PLANT;
-    }
+    // Create a larger coffee area (2x2 grid)
+    const coffeeX = Math.floor(COLS / 2) - 1;
+    const coffeeY = Math.floor(ROWS / 2) - 1;
+    office[coffeeY][coffeeX] = OBJECTS.COFFEE;
+    office[coffeeY][coffeeX + 1] = OBJECTS.COFFEE;
+    office[coffeeY + 1][coffeeX] = OBJECTS.COFFEE;
+    office[coffeeY + 1][coffeeX + 1] = OBJECTS.COFFEE;
 
     const deskPositions = {
         btc: { x: 6, y: 6 },
@@ -1314,61 +1308,110 @@ function drawOffice() {
                     break;
 
                 case OBJECTS.COFFEE:
+                    // Enhanced coffee machine rendering
+                    const centerX = Math.floor(COLS / 2) - 0.5;
+                    const centerY = Math.floor(ROWS / 2) - 0.5;
+                    const isCenterPiece = (x === Math.floor(centerX) && y === Math.floor(centerY));
+
+                    // Base/counter
                     ctx.fillStyle = '#8B4513';
                     ctx.fillRect(cellX, cellY, GRID_SIZE, GRID_SIZE);
 
                     ctx.fillStyle = '#D2B48C';
-                    ctx.fillRect(cellX + 2, cellY + 2, GRID_SIZE - 4, GRID_SIZE / 2 - 2);
+                    ctx.fillRect(cellX + 2, cellY + 2, GRID_SIZE - 4, GRID_SIZE - 4);
 
-                    ctx.fillStyle = '#333';
-                    ctx.fillRect(cellX + GRID_SIZE / 6, cellY + GRID_SIZE / 6, GRID_SIZE * 2 / 3, GRID_SIZE / 3);
+                    // Draw different parts of the coffee machine based on position
+                    if (x === Math.floor(centerX) && y === Math.floor(centerY)) {
+                        // Main coffee machine body in top-left cell
+                        ctx.fillStyle = '#333';
+                        ctx.fillRect(cellX + 5, cellY + 5, GRID_SIZE - 10, GRID_SIZE - 15);
 
-                    ctx.fillStyle = '#555';
-                    ctx.fillRect(cellX + GRID_SIZE / 4, cellY + GRID_SIZE / 12, GRID_SIZE / 2, GRID_SIZE / 12);
+                        // Control panel
+                        ctx.fillStyle = '#222';
+                        ctx.fillRect(cellX + 5, cellY + GRID_SIZE - 15, GRID_SIZE - 10, 10);
 
-                    ctx.fillStyle = '#222';
-                    ctx.fillRect(cellX + GRID_SIZE * 0.6, cellY + GRID_SIZE / 5, GRID_SIZE / 5, GRID_SIZE / 4);
+                        // Buttons
+                        ctx.fillStyle = '#f00';
+                        ctx.beginPath();
+                        ctx.arc(cellX + 15, cellY + GRID_SIZE - 10, 3, 0, Math.PI * 2);
+                        ctx.fill();
 
-                    ctx.fillStyle = '#fff';
-                    ctx.fillRect(cellX + GRID_SIZE / 3, cellY + GRID_SIZE * 2 / 3, GRID_SIZE / 4, GRID_SIZE / 5);
+                        ctx.fillStyle = '#0f0';
+                        ctx.beginPath();
+                        ctx.arc(cellX + 25, cellY + GRID_SIZE - 10, 3, 0, Math.PI * 2);
+                        ctx.fill();
 
-                    ctx.fillStyle = '#6F4E37';
-                    ctx.fillRect(cellX + GRID_SIZE / 3 + 2, cellY + GRID_SIZE * 2 / 3 + 2, GRID_SIZE / 4 - 4, GRID_SIZE / 5 - 4);
+                        // Screen
+                        ctx.fillStyle = '#336699';
+                        ctx.fillRect(cellX + GRID_SIZE / 2 - 10, cellY + GRID_SIZE - 14, 20, 8);
 
-                    ctx.strokeStyle = '#ddd';
-                    ctx.beginPath();
-                    ctx.moveTo(cellX + GRID_SIZE * 0.4, cellY + GRID_SIZE * 2 / 3);
-                    ctx.bezierCurveTo(
-                        cellX + GRID_SIZE * 0.45, cellY + GRID_SIZE * 0.6,
-                        cellX + GRID_SIZE * 0.5, cellY + GRID_SIZE * 0.65,
-                        cellX + GRID_SIZE * 0.45, cellY + GRID_SIZE * 0.55
-                    );
-                    ctx.stroke();
-                    break;
+                    } else if (x === Math.floor(centerX) + 1 && y === Math.floor(centerY)) {
+                        // Top-right: Coffee grinder
+                        ctx.fillStyle = '#444';
+                        ctx.fillRect(cellX + 5, cellY + 5, GRID_SIZE - 15, GRID_SIZE - 10);
 
-                case OBJECTS.PLANT:
-                    ctx.fillStyle = '#A0522D';
-                    ctx.fillRect(cellX + GRID_SIZE / 4, cellY + GRID_SIZE * 2 / 3, GRID_SIZE / 2, GRID_SIZE / 3);
+                        // Bean container
+                        ctx.fillStyle = '#222';
+                        ctx.beginPath();
+                        ctx.arc(cellX + 12, cellY + GRID_SIZE / 3, GRID_SIZE / 4, 0, Math.PI * 2);
+                        ctx.fill();
 
-                    ctx.fillStyle = '#8B4513';
-                    ctx.fillRect(cellX + GRID_SIZE / 4 - 2, cellY + GRID_SIZE * 2 / 3, GRID_SIZE / 2 + 4, GRID_SIZE / 12);
+                        // Coffee beans
+                        ctx.fillStyle = '#654321';
+                        for (let i = 0; i < 5; i++) {
+                            ctx.beginPath();
+                            ctx.ellipse(
+                                cellX + 12 + (Math.random() * 10 - 5),
+                                cellY + GRID_SIZE / 3 + (Math.random() * 10 - 5),
+                                3, 2, Math.random() * Math.PI, 0, Math.PI * 2
+                            );
+                            ctx.fill();
+                        }
+                    } else if (x === Math.floor(centerX) && y === Math.floor(centerY) + 1) {
+                        // Bottom-left: Coffee dispensing area
+                        ctx.fillStyle = '#222';
+                        ctx.fillRect(cellX + 5, cellY + 5, GRID_SIZE - 10, GRID_SIZE / 3);
 
-                    ctx.fillStyle = '#3a2a1d';
-                    ctx.fillRect(cellX + GRID_SIZE / 4 + 2, cellY + GRID_SIZE * 2 / 3 + 3, GRID_SIZE / 2 - 4, GRID_SIZE / 12);
+                        // Drip area
+                        ctx.fillStyle = '#111';
+                        ctx.fillRect(cellX + GRID_SIZE / 2 - 8, cellY + GRID_SIZE / 3, 16, 2);
 
-                    ctx.fillStyle = '#228B22';
-                    ctx.beginPath();
-                    ctx.arc(cellX + GRID_SIZE / 2, cellY + GRID_SIZE / 3, GRID_SIZE / 3, 0, Math.PI * 2);
-                    ctx.fill();
+                        // Coffee spouts
+                        ctx.fillStyle = '#222';
+                        ctx.fillRect(cellX + GRID_SIZE / 2 - 5, cellY + GRID_SIZE / 3 + 2, 2, 5);
+                        ctx.fillRect(cellX + GRID_SIZE / 2 + 3, cellY + GRID_SIZE / 3 + 2, 2, 5);
 
-                    ctx.fillStyle = '#32CD32';
-                    ctx.beginPath();
-                    ctx.arc(cellX + GRID_SIZE / 2 + GRID_SIZE / 5, cellY + GRID_SIZE / 3 - GRID_SIZE / 8, GRID_SIZE / 5, 0, Math.PI * 2);
-                    ctx.fill();
+                        // Coffee cup
+                        ctx.fillStyle = '#fff';
+                        ctx.fillRect(cellX + GRID_SIZE / 2 - 7, cellY + GRID_SIZE / 2, 14, 10);
+                        ctx.fillStyle = '#6F4E37';
+                        ctx.fillRect(cellX + GRID_SIZE / 2 - 5, cellY + GRID_SIZE / 2 + 2, 10, 6);
+                    } else if (x === Math.floor(centerX) + 1 && y === Math.floor(centerY) + 1) {
+                        // Bottom-right: Supplies and cups
+                        const cupColors = ['#fff', '#e0e0e0', '#f0f0f0'];
+                        const cupCount = 5;
 
-                    ctx.beginPath();
-                    ctx.arc(cellX + GRID_SIZE / 2 - GRID_SIZE / 6, cellY + GRID_SIZE / 4, GRID_SIZE / 6, 0, Math.PI * 2);
-                    ctx.fill();
+                        // Stack of cups
+                        for (let i = 0; i < cupCount; i++) {
+                            ctx.fillStyle = cupColors[i % cupColors.length];
+                            ctx.beginPath();
+                            ctx.arc(cellX + GRID_SIZE / 3, cellY + GRID_SIZE / 3 - i * 3, 8, 0, Math.PI * 2);
+                            ctx.fill();
+                            ctx.beginPath();
+                            ctx.ellipse(cellX + GRID_SIZE / 3, cellY + GRID_SIZE / 3 - i * 3, 8, 3, 0, 0, Math.PI * 2);
+                            ctx.fill();
+                        }
+
+                        // Coffee packets
+                        ctx.fillStyle = '#A52A2A';
+                        ctx.fillRect(cellX + GRID_SIZE / 2 + 2, cellY + 10, 12, 8);
+                        ctx.fillRect(cellX + GRID_SIZE / 2 + 5, cellY + 18, 12, 8);
+
+                        // Sugar packets
+                        ctx.fillStyle = '#fff';
+                        ctx.fillRect(cellX + GRID_SIZE / 2, cellY + GRID_SIZE / 2, 10, 5);
+                        ctx.fillRect(cellX + GRID_SIZE / 2 + 3, cellY + GRID_SIZE / 2 + 5, 10, 5);
+                    }
                     break;
 
                 default:
