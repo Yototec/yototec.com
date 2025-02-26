@@ -1677,25 +1677,181 @@ function drawOffice() {
                     break;
 
                 case OBJECTS.COMPUTER:
+                    // Draw desk surface under computer
                     ctx.fillStyle = '#f5f5f5';
                     ctx.fillRect(cellX, cellY, GRID_SIZE, GRID_SIZE);
-
+                    
+                    // Monitor stand - more elegant design
+                    ctx.fillStyle = '#222222';
+                    ctx.beginPath();
+                    ctx.moveTo(cellX + GRID_SIZE * 0.4, cellY + GRID_SIZE * 0.75);
+                    ctx.lineTo(cellX + GRID_SIZE * 0.6, cellY + GRID_SIZE * 0.75);
+                    ctx.lineTo(cellX + GRID_SIZE * 0.55, cellY + GRID_SIZE * 0.85);
+                    ctx.lineTo(cellX + GRID_SIZE * 0.45, cellY + GRID_SIZE * 0.85);
+                    ctx.closePath();
+                    ctx.fill();
+                    
+                    // Stand base
+                    ctx.fillStyle = '#333333';
+                    ctx.beginPath();
+                    ctx.ellipse(
+                        cellX + GRID_SIZE / 2,
+                        cellY + GRID_SIZE * 0.85,
+                        GRID_SIZE * 0.2,
+                        GRID_SIZE * 0.06,
+                        0, 0, Math.PI * 2
+                    );
+                    ctx.fill();
+                    
+                    // Neck of the stand
+                    ctx.fillStyle = '#222222';
+                    ctx.fillRect(
+                        cellX + GRID_SIZE * 0.47,
+                        cellY + GRID_SIZE * 0.55,
+                        GRID_SIZE * 0.06,
+                        GRID_SIZE * 0.2
+                    );
+                    
+                    // Monitor frame - outside bezel
                     ctx.fillStyle = COLORS.computer;
-                    ctx.fillRect(cellX + GRID_SIZE / 4, cellY + GRID_SIZE * 2 / 3, GRID_SIZE / 2, GRID_SIZE / 6);
-
-                    ctx.fillRect(cellX + GRID_SIZE * 0.45, cellY + GRID_SIZE * 0.5, GRID_SIZE * 0.1, GRID_SIZE * 0.2);
-
-                    ctx.fillRect(cellX + GRID_SIZE / 6, cellY + GRID_SIZE / 6, GRID_SIZE * 2 / 3, GRID_SIZE / 2);
-
+                    roundedRect(
+                        ctx,
+                        cellX + GRID_SIZE * 0.15,
+                        cellY + GRID_SIZE * 0.1,
+                        GRID_SIZE * 0.7,
+                        GRID_SIZE * 0.45,
+                        4
+                    );
+                    
+                    // Screen - inside of bezel
                     ctx.fillStyle = COLORS.screen;
-                    ctx.fillRect(cellX + GRID_SIZE / 6 + 2, cellY + GRID_SIZE / 6 + 2, GRID_SIZE * 2 / 3 - 4, GRID_SIZE / 2 - 4);
-
+                    roundedRect(
+                        ctx,
+                        cellX + GRID_SIZE * 0.17,
+                        cellY + GRID_SIZE * 0.12,
+                        GRID_SIZE * 0.66,
+                        GRID_SIZE * 0.41,
+                        2
+                    );
+                    
+                    // Determine what ticker to show based on location
+                    let ticker = '';
+                    const deskX = Math.floor(cellX / GRID_SIZE);
+                    const deskY = Math.floor(cellY / GRID_SIZE);
+                    
+                    if (deskX < COLS / 2 && deskY < ROWS / 2) ticker = 'btc';
+                    else if (deskX < COLS / 2) ticker = 'eth';
+                    else if (deskY < ROWS / 2) ticker = 'sol';
+                    else ticker = 'doge';
+                    
+                    // Chart data based on ticker
+                    const chartColor = ticker === 'btc' ? '#F7931A' : 
+                                       ticker === 'eth' ? '#627EEA' : 
+                                       ticker === 'sol' ? '#00FFA3' : '#C3A634';
+                    
+                    // Draw screen content - price chart
+                    ctx.strokeStyle = chartColor;
+                    ctx.lineWidth = 1.5;
+                    ctx.beginPath();
+                    ctx.moveTo(cellX + GRID_SIZE * 0.18, cellY + GRID_SIZE * 0.32);
+                    
+                    // Create a price chart specific to the ticker
+                    const points = 8;
+                    const volatility = ticker === 'btc' ? 0.05 : 
+                                      ticker === 'eth' ? 0.07 : 
+                                      ticker === 'sol' ? 0.09 : 0.11;
+                    
+                    // Generate the chart line
+                    let prevY = cellY + GRID_SIZE * (0.32 - Math.random() * 0.1);
+                    for (let i = 1; i <= points; i++) {
+                        const x = cellX + GRID_SIZE * (0.18 + (i * 0.64 / points));
+                        const direction = Math.random() > 0.5 ? 1 : -1;
+                        const change = Math.random() * volatility * direction;
+                        const y = prevY + change * GRID_SIZE;
+                        // Keep the chart within the screen bounds
+                        const yBounded = Math.max(cellY + GRID_SIZE * 0.13, 
+                                         Math.min(cellY + GRID_SIZE * 0.52, y));
+                        ctx.lineTo(x, yBounded);
+                        prevY = yBounded;
+                    }
+                    ctx.stroke();
+                    
+                    // Screen horizontal lines (data rows)
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.lineWidth = 0.5;
+                    ctx.globalAlpha = 0.2;
+                    for (let i = 0; i < 4; i++) {
+                        ctx.beginPath();
+                        ctx.moveTo(cellX + GRID_SIZE * 0.17, cellY + GRID_SIZE * (0.18 + i * 0.09));
+                        ctx.lineTo(cellX + GRID_SIZE * 0.83, cellY + GRID_SIZE * (0.18 + i * 0.09));
+                        ctx.stroke();
+                    }
+                    ctx.globalAlpha = 1.0;
+                    
+                    // Small indicator light
+                    ctx.fillStyle = '#00ff00';
+                    ctx.beginPath();
+                    ctx.arc(
+                        cellX + GRID_SIZE * 0.15 + 3,
+                        cellY + GRID_SIZE * 0.1 + 3,
+                        2,
+                        0, Math.PI * 2
+                    );
+                    ctx.fill();
+                    
+                    // Add logo/ticker to the screen
                     ctx.fillStyle = '#ffffff';
-                    ctx.fillRect(cellX + GRID_SIZE * 0.25, cellY + GRID_SIZE * 0.25, GRID_SIZE * 0.1, GRID_SIZE * 0.05);
-                    ctx.fillRect(cellX + GRID_SIZE * 0.25, cellY + GRID_SIZE * 0.35, GRID_SIZE * 0.2, GRID_SIZE * 0.05);
-
-                    ctx.fillStyle = '#555';
-                    ctx.fillRect(cellX + GRID_SIZE / 4, cellY + GRID_SIZE * 3 / 4, GRID_SIZE / 2, GRID_SIZE / 8);
+                    ctx.font = '6px Arial';
+                    ctx.textAlign = 'left';
+                    ctx.fillText(
+                        ticker.toUpperCase(),
+                        cellX + GRID_SIZE * 0.19,
+                        cellY + GRID_SIZE * 0.17
+                    );
+                    
+                    // Price indicators
+                    ctx.font = '6px Arial';
+                    ctx.fillText(
+                        `$${Math.floor(1000 + Math.random() * 9000)}`,
+                        cellX + GRID_SIZE * 0.72,
+                        cellY + GRID_SIZE * 0.17
+                    );
+                    
+                    // Screen reflection
+                    ctx.fillStyle = '#ffffff';
+                    ctx.globalAlpha = 0.05;
+                    ctx.beginPath();
+                    ctx.moveTo(cellX + GRID_SIZE * 0.17, cellY + GRID_SIZE * 0.12);
+                    ctx.lineTo(cellX + GRID_SIZE * 0.6, cellY + GRID_SIZE * 0.12);
+                    ctx.lineTo(cellX + GRID_SIZE * 0.35, cellY + GRID_SIZE * 0.25);
+                    ctx.lineTo(cellX + GRID_SIZE * 0.17, cellY + GRID_SIZE * 0.25);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.globalAlpha = 1.0;
+                    
+                    // Draw keyboard
+                    ctx.fillStyle = '#222222';
+                    roundedRect(
+                        ctx,
+                        cellX + GRID_SIZE * 0.25,
+                        cellY + GRID_SIZE * 0.65,
+                        GRID_SIZE * 0.5,
+                        GRID_SIZE * 0.1,
+                        2
+                    );
+                    
+                    // Keyboard keys
+                    ctx.fillStyle = '#444444';
+                    for (let i = 0; i < 3; i++) {
+                        for (let j = 0; j < 8; j++) {
+                            ctx.fillRect(
+                                cellX + GRID_SIZE * (0.26 + j * 0.06),
+                                cellY + GRID_SIZE * (0.66 + i * 0.03),
+                                GRID_SIZE * 0.05,
+                                GRID_SIZE * 0.02
+                            );
+                        }
+                    }
                     break;
 
                 case OBJECTS.COFFEE:
@@ -2487,3 +2643,19 @@ setTimeout(() => {
 
     setTimeout(startTaskScheduler, 5000);
 }, 2000);
+
+// Helper function for drawing rounded rectangles
+function roundedRect(context, x, y, width, height, radius) {
+    context.beginPath();
+    context.moveTo(x + radius, y);
+    context.lineTo(x + width - radius, y);
+    context.quadraticCurveTo(x + width, y, x + width, y + radius);
+    context.lineTo(x + width, y + height - radius);
+    context.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+    context.lineTo(x + radius, y + height);
+    context.quadraticCurveTo(x, y + height, x, y + height - radius);
+    context.lineTo(x, y + radius);
+    context.quadraticCurveTo(x, y, x + radius, y);
+    context.closePath();
+    context.fill();
+}
