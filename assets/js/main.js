@@ -745,18 +745,20 @@ class Person {
                 if (this.stateTime > 10) {
                     this.stateTime = 0;
                     const rand = Math.random();
-                    if (rand < 0.2) {
+                    if (rand < 0.15) {
                         this.goToDesk();
-                    } else if (rand < 0.35) {
+                    } else if (rand < 0.3) {
                         this.wander();
                         this.state = 'walking';
                         this.speak('Taking a walk');
-                    } else if (rand < 0.6) {
+                    } else if (rand < 0.5) {
                         this.findInteraction();
-                    } else if (rand < 0.8) {
+                    } else if (rand < 0.65) {
                         this.goToTable();
-                    } else {
+                    } else if (rand < 0.8) {
                         this.goToCoffee();
+                    } else {
+                        this.goToWindow();
                     }
                 }
                 break;
@@ -802,6 +804,16 @@ class Person {
                         else if (this.x > coffeeCenterX + 1) this.facingDirection = 'left';
                         else if (this.y < coffeeCenterY) this.facingDirection = 'down';
                         else if (this.y > coffeeCenterY + 1) this.facingDirection = 'up';
+                    } else if (this.isNearWindow()) {
+                        this.state = 'takingFreshAir';
+                        this.stateTime = 0;
+                        this.speak('Enjoying the view');
+                        // Face the window
+                        if (this.y === 1) {
+                            this.facingDirection = 'up'; // Top window
+                        } else if (this.x === COLS - 2) {
+                            this.facingDirection = 'right'; // Right window
+                        }
                     }
                 }
                 break;
@@ -886,6 +898,37 @@ class Person {
                             "Coffee really helps with the market patterns"
                         ];
                         this.speak(afterCoffeeComments[Math.floor(Math.random() * afterCoffeeComments.length)]);
+                    }
+                }
+                break;
+
+            case 'takingFreshAir':
+                this.stateTime++;
+                if (this.stateTime === 5) {
+                    const freshAirComments = [
+                        "The fresh air feels nice",
+                        "What a beautiful day outside",
+                        "Taking a moment to clear my thoughts",
+                        "The view helps with perspective",
+                        "Sometimes you need to look outside to see clearly"
+                    ];
+                    this.speak(freshAirComments[Math.floor(Math.random() * freshAirComments.length)]);
+                }
+                // End fresh air break
+                else if (this.stateTime > 12) {
+                    this.state = 'idle';
+                    this.stateTime = 0;
+                    
+                    // Occasionally say something about market insights when finishing
+                    if (Math.random() < 0.4) {
+                        const marketInsights = [
+                            "I just had a new insight about the market",
+                            "I think I see a pattern now",
+                            "Sometimes distance brings clarity",
+                            `The ${this.ticker} trend is becoming clearer now`,
+                            "Back to work with a fresh perspective"
+                        ];
+                        this.speak(marketInsights[Math.floor(Math.random() * marketInsights.length)]);
                     }
                 }
                 break;
@@ -1220,6 +1263,61 @@ class Person {
             }
         }
 
+        return false;
+    }
+
+    findWindowLocation() {
+        const windowLocations = [];
+        
+        // Check top wall windows
+        for (let x = 3; x < COLS - 3; x += 3) {
+            if (office[0][x] === OBJECTS.WINDOW || office[0][x + 1] === OBJECTS.WINDOW) {
+                // Check the cell below the window
+                if (isWalkable(x, 1)) windowLocations.push({ x, y: 1 });
+                if (isWalkable(x + 1, 1)) windowLocations.push({ x: x + 1, y: 1 });
+            }
+        }
+        
+        // Check right wall windows
+        for (let y = 3; y < ROWS - 6; y += 3) {
+            if (office[y][COLS - 1] === OBJECTS.WINDOW || office[y + 1][COLS - 1] === OBJECTS.WINDOW) {
+                // Check the cell to the left of the window
+                if (isWalkable(COLS - 2, y)) windowLocations.push({ x: COLS - 2, y });
+                if (isWalkable(COLS - 2, y + 1)) windowLocations.push({ x: COLS - 2, y: y + 1 });
+            }
+        }
+        
+        // If we found valid cells, return a random one
+        if (windowLocations.length > 0) {
+            return windowLocations[Math.floor(Math.random() * windowLocations.length)];
+        }
+        
+        // Fallback to a position near a wall if no valid window locations
+        return { x: 1, y: 1 };
+    }
+
+    goToWindow() {
+        const windowPos = this.findWindowLocation();
+        this.setDestination(windowPos.x, windowPos.y);
+        this.state = 'walking';
+        this.speak('Going to get some fresh air');
+    }
+
+    isNearWindow() {
+        // Check if adjacent to a window on the top wall
+        if (this.y === 1) {
+            if (office[0][this.x] === OBJECTS.WINDOW) return true;
+            if (this.x > 0 && office[0][this.x - 1] === OBJECTS.WINDOW) return true;
+            if (this.x < COLS - 1 && office[0][this.x + 1] === OBJECTS.WINDOW) return true;
+        }
+        
+        // Check if adjacent to a window on the right wall
+        if (this.x === COLS - 2) {
+            if (office[this.y][COLS - 1] === OBJECTS.WINDOW) return true;
+            if (this.y > 0 && office[this.y - 1][COLS - 1] === OBJECTS.WINDOW) return true;
+            if (this.y < ROWS - 1 && office[this.y + 1][COLS - 1] === OBJECTS.WINDOW) return true;
+        }
+        
         return false;
     }
 }
