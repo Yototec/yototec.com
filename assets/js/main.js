@@ -745,14 +745,16 @@ class Person {
                 if (this.stateTime > 10) {
                     this.stateTime = 0;
                     const rand = Math.random();
-                    if (rand < 0.3) {
+                    if (rand < 0.2) {
                         this.goToDesk();
-                    } else if (rand < 0.6) {
+                    } else if (rand < 0.4) {
                         this.wander();
                         this.state = 'walking';
                         this.speak('Taking a walk');
-                    } else {
+                    } else if (rand < 0.7) {
                         this.findInteraction();
+                    } else {
+                        this.goToTable();
                     }
                 }
                 break;
@@ -776,6 +778,17 @@ class Person {
                         } else {
                             this.interactionPartner = null;
                         }
+                    } else if (this.isNearTable()) {
+                        this.state = 'resting';
+                        this.stateTime = 0;
+                        this.speak('Taking a breather');
+                        // Face the table
+                        const tableCenterX = Math.floor(COLS / 2);
+                        const tableCenterY = Math.floor(ROWS / 2);
+                        if (this.x < tableCenterX) this.facingDirection = 'right';
+                        else if (this.x > tableCenterX) this.facingDirection = 'left';
+                        else if (this.y < tableCenterY) this.facingDirection = 'down';
+                        else this.facingDirection = 'up';
                     }
                 }
                 break;
@@ -796,7 +809,68 @@ class Person {
                     this.interactionPartner = null;
                 }
                 break;
+
+            case 'resting':
+                this.stateTime++;
+                if (this.stateTime > 12) {
+                    this.state = 'idle';
+                    this.stateTime = 0;
+
+                    // Occasionally say something when finished resting
+                    if (Math.random() < 0.6) {
+                        const restingComments = [
+                            "That was refreshing",
+                            "Back to work now",
+                            "Feeling recharged",
+                            "That was a good break",
+                            "Time to be productive again"
+                        ];
+                        this.speak(restingComments[Math.floor(Math.random() * restingComments.length)]);
+                    }
+                } else if (this.stateTime === 6 && Math.random() < 0.4) {
+                    // Occasionally say something while resting
+                    const tableComments = [
+                        "This market never sleeps",
+                        "Sometimes you need a moment to think",
+                        "The office view is nice today",
+                        "I should grab coffee next",
+                        `${this.ticker} analysis is tough today`,
+                        "I've been tracking some interesting patterns"
+                    ];
+                    this.speak(tableComments[Math.floor(Math.random() * tableComments.length)]);
+                }
+                break;
         }
+    }
+
+    isNearTable() {
+        const tableCenterX = Math.floor(COLS / 2);
+        const tableCenterY = Math.floor(ROWS / 2);
+        const tableWidth = 4;
+        const tableHeight = 2;
+
+        // Check if the person is adjacent to the table
+        for (let dx = -Math.floor(tableWidth / 2) - 1; dx <= Math.ceil(tableWidth / 2); dx++) {
+            for (let dy = -Math.floor(tableHeight / 2) - 1; dy <= Math.ceil(tableHeight / 2); dy++) {
+                const tableX = tableCenterX + dx;
+                const tableY = tableCenterY + dy;
+
+                // Check if this is a table cell
+                const isTable = (
+                    dx >= -Math.floor(tableWidth / 2) &&
+                    dx < Math.ceil(tableWidth / 2) &&
+                    dy >= -Math.floor(tableHeight / 2) &&
+                    dy < Math.ceil(tableHeight / 2)
+                );
+
+                // If it's a table cell and the person is adjacent to it
+                if (isTable && Math.abs(this.x - tableX) <= 1 && Math.abs(this.y - tableY) <= 1) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     goToDesk() {
@@ -976,6 +1050,52 @@ class Person {
             isTaskInProgress = false;
             scheduleNextTask();
         }, REASONING_DISPLAY_TIME);
+    }
+
+    findTableLocation() {
+        // Get table center coordinates
+        const tableCenterX = Math.floor(COLS / 2);
+        const tableCenterY = Math.floor(ROWS / 2);
+        const tableWidth = 4;
+        const tableHeight = 2;
+
+        // Find empty cells around the table
+        const tableCells = [];
+
+        // Check cells along the perimeter of the table
+        for (let dx = -Math.floor(tableWidth / 2) - 1; dx <= Math.ceil(tableWidth / 2); dx++) {
+            for (let dy = -Math.floor(tableHeight / 2) - 1; dy <= Math.ceil(tableHeight / 2); dy++) {
+                // Only consider cells that are exactly adjacent to the table
+                const isTableAdjacent =
+                    (dx === -Math.floor(tableWidth / 2) - 1 && dy >= -Math.floor(tableHeight / 2) && dy < Math.ceil(tableHeight / 2)) ||
+                    (dx === Math.ceil(tableWidth / 2) && dy >= -Math.floor(tableHeight / 2) && dy < Math.ceil(tableHeight / 2)) ||
+                    (dy === -Math.floor(tableHeight / 2) - 1 && dx >= -Math.floor(tableWidth / 2) && dx < Math.ceil(tableWidth / 2)) ||
+                    (dy === Math.ceil(tableHeight / 2) && dx >= -Math.floor(tableWidth / 2) && dx < Math.ceil(tableWidth / 2));
+
+                if (isTableAdjacent) {
+                    const x = tableCenterX + dx;
+                    const y = tableCenterY + dy;
+                    if (isWalkable(x, y)) {
+                        tableCells.push({ x, y });
+                    }
+                }
+            }
+        }
+
+        // If we found valid cells, return a random one
+        if (tableCells.length > 0) {
+            return tableCells[Math.floor(Math.random() * tableCells.length)];
+        }
+
+        // Fallback to a position near the center if no valid cells
+        return { x: tableCenterX + 3, y: tableCenterY + 3 };
+    }
+
+    goToTable() {
+        const tablePos = this.findTableLocation();
+        this.setDestination(tablePos.x, tablePos.y);
+        this.state = 'walking';
+        this.speak('Going to take a break at the table');
     }
 }
 
