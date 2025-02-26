@@ -747,14 +747,16 @@ class Person {
                     const rand = Math.random();
                     if (rand < 0.2) {
                         this.goToDesk();
-                    } else if (rand < 0.4) {
+                    } else if (rand < 0.35) {
                         this.wander();
                         this.state = 'walking';
                         this.speak('Taking a walk');
-                    } else if (rand < 0.7) {
+                    } else if (rand < 0.6) {
                         this.findInteraction();
-                    } else {
+                    } else if (rand < 0.8) {
                         this.goToTable();
+                    } else {
+                        this.goToCoffee();
                     }
                 }
                 break;
@@ -789,6 +791,17 @@ class Person {
                         else if (this.x > tableCenterX) this.facingDirection = 'left';
                         else if (this.y < tableCenterY) this.facingDirection = 'down';
                         else this.facingDirection = 'up';
+                    } else if (this.isNearCoffee()) {
+                        this.state = 'makingCoffee';
+                        this.stateTime = 0;
+                        this.speak('Making a coffee');
+                        // Face the coffee machine
+                        const coffeeCenterX = Math.floor(COLS / 2) + 3;
+                        const coffeeCenterY = Math.floor(ROWS / 2) - 1;
+                        if (this.x < coffeeCenterX) this.facingDirection = 'right';
+                        else if (this.x > coffeeCenterX + 1) this.facingDirection = 'left';
+                        else if (this.y < coffeeCenterY) this.facingDirection = 'down';
+                        else if (this.y > coffeeCenterY + 1) this.facingDirection = 'up';
                     }
                 }
                 break;
@@ -838,6 +851,42 @@ class Person {
                         "I've been tracking some interesting patterns"
                     ];
                     this.speak(tableComments[Math.floor(Math.random() * tableComments.length)]);
+                }
+                break;
+
+            case 'makingCoffee':
+                this.stateTime++;
+                // First phase - making coffee
+                if (this.stateTime === 4) {
+                    this.speak('Coffee brewing...');
+                }
+                // Second phase - drinking coffee
+                else if (this.stateTime === 8) {
+                    const coffeeComments = [
+                        "Ah, that's the good stuff",
+                        "Perfect! Just what I needed",
+                        "Nothing like a fresh cup of coffee",
+                        "This coffee is excellent",
+                        "Caffeine boost initiated"
+                    ];
+                    this.speak(coffeeComments[Math.floor(Math.random() * coffeeComments.length)]);
+                }
+                // Finish coffee break
+                else if (this.stateTime > 12) {
+                    this.state = 'idle';
+                    this.stateTime = 0;
+
+                    // Occasionally say something after coffee
+                    if (Math.random() < 0.5) {
+                        const afterCoffeeComments = [
+                            "Now I can focus better",
+                            "Ready to analyze some data",
+                            "That cleared my mind",
+                            "Now back to crypto analysis",
+                            "Coffee really helps with the market patterns"
+                        ];
+                        this.speak(afterCoffeeComments[Math.floor(Math.random() * afterCoffeeComments.length)]);
+                    }
                 }
                 break;
         }
@@ -1096,6 +1145,82 @@ class Person {
         this.setDestination(tablePos.x, tablePos.y);
         this.state = 'walking';
         this.speak('Going to take a break at the table');
+    }
+
+    findCoffeeLocation() {
+        // Coffee machine is located slightly to the right of center
+        const coffeeCenterX = Math.floor(COLS / 2) + 3.5;
+        const coffeeCenterY = Math.floor(ROWS / 2) - 0.5;
+        const coffeeWidth = 2;
+        const coffeeHeight = 2;
+
+        // Find empty cells around the coffee machine
+        const coffeeCells = [];
+
+        // Check cells along the perimeter of the coffee machine
+        for (let dx = -coffeeWidth / 2 - 1; dx <= coffeeWidth / 2; dx++) {
+            for (let dy = -coffeeHeight / 2 - 1; dy <= coffeeHeight / 2; dy++) {
+                // Only consider cells that are exactly adjacent to the coffee machine
+                const isCoffeeAdjacent =
+                    (dx === -coffeeWidth / 2 - 1 && dy >= -coffeeHeight / 2 && dy < coffeeHeight / 2) ||
+                    (dx === coffeeWidth / 2 && dy >= -coffeeHeight / 2 && dy < coffeeHeight / 2) ||
+                    (dy === -coffeeHeight / 2 - 1 && dx >= -coffeeWidth / 2 && dx < coffeeWidth / 2) ||
+                    (dy === coffeeHeight / 2 && dx >= -coffeeWidth / 2 && dx < coffeeWidth / 2);
+
+                if (isCoffeeAdjacent) {
+                    const x = Math.floor(coffeeCenterX + dx);
+                    const y = Math.floor(coffeeCenterY + dy);
+                    if (isWalkable(x, y)) {
+                        coffeeCells.push({ x, y });
+                    }
+                }
+            }
+        }
+
+        // If we found valid cells, return a random one
+        if (coffeeCells.length > 0) {
+            return coffeeCells[Math.floor(Math.random() * coffeeCells.length)];
+        }
+
+        // Fallback to a position near the coffee machine if no valid cells
+        return { x: Math.floor(coffeeCenterX) + 2, y: Math.floor(coffeeCenterY) + 2 };
+    }
+
+    goToCoffee() {
+        const coffeePos = this.findCoffeeLocation();
+        this.setDestination(coffeePos.x, coffeePos.y);
+        this.state = 'walking';
+        this.speak('Need some coffee to stay focused');
+    }
+
+    isNearCoffee() {
+        const coffeeCenterX = Math.floor(COLS / 2) + 3.5;
+        const coffeeCenterY = Math.floor(ROWS / 2) - 0.5;
+        const coffeeWidth = 2;
+        const coffeeHeight = 2;
+
+        // Check if the person is adjacent to the coffee machine
+        for (let dx = -coffeeWidth / 2 - 1; dx <= coffeeWidth / 2; dx++) {
+            for (let dy = -coffeeHeight / 2 - 1; dy <= coffeeHeight / 2; dy++) {
+                const coffeeX = Math.floor(coffeeCenterX + dx);
+                const coffeeY = Math.floor(coffeeCenterY + dy);
+
+                // Check if this is a coffee machine cell
+                const isCoffee = (
+                    dx >= -coffeeWidth / 2 &&
+                    dx < coffeeWidth / 2 &&
+                    dy >= -coffeeHeight / 2 &&
+                    dy < coffeeHeight / 2
+                );
+
+                // If it's a coffee machine cell and the person is adjacent to it
+                if (isCoffee && Math.abs(this.x - coffeeX) <= 1 && Math.abs(this.y - coffeeY) <= 1) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }
 
