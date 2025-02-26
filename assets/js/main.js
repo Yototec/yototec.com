@@ -16,6 +16,7 @@ const COLORS = {
     carpet: '#f8f8f8',
     wall: '#cccccc',
     desk: '#8B4513',
+    table: '#6d4c41',
     computer: '#333333',
     screen: '#87CEEB',
     chair: '#4a4a4a',
@@ -41,7 +42,8 @@ const OBJECTS = {
     CARPET: 7,
     WINDOW: 8,
     BALCONY: 9,
-    BALCONY_RAIL: 10
+    BALCONY_RAIL: 10,
+    TABLE: 11
 };
 
 let apiConnected = false;
@@ -996,8 +998,20 @@ function initOffice() {
     createWorkstation(COLS - 10, 5);    // SOL
     createWorkstation(COLS - 10, 15);   // DOGE
 
-    // Create a larger coffee area (2x2 grid)
-    const coffeeX = Math.floor(COLS / 2) - 1;
+    // Create a rectangular table in the middle of the office
+    const tableWidth = 4;
+    const tableHeight = 2;
+    const tableCenterX = Math.floor(COLS / 2);
+    const tableCenterY = Math.floor(ROWS / 2);
+    
+    for (let dx = -Math.floor(tableWidth/2); dx < Math.ceil(tableWidth/2); dx++) {
+        for (let dy = -Math.floor(tableHeight/2); dy < Math.ceil(tableHeight/2); dy++) {
+            office[tableCenterY + dy][tableCenterX + dx] = OBJECTS.TABLE;
+        }
+    }
+
+    // Create a coffee area (2x2 grid) slightly to the right of center
+    const coffeeX = Math.floor(COLS / 2) + 3; // Moved right by 3 spaces
     const coffeeY = Math.floor(ROWS / 2) - 1;
     office[coffeeY][coffeeX] = OBJECTS.COFFEE;
     office[coffeeY][coffeeX + 1] = OBJECTS.COFFEE;
@@ -1309,7 +1323,7 @@ function drawOffice() {
 
                 case OBJECTS.COFFEE:
                     // Enhanced coffee machine rendering
-                    const centerX = Math.floor(COLS / 2) - 0.5;
+                    const centerX = Math.floor(COLS / 2) + 3; // Moved right by 3 spaces
                     const centerY = Math.floor(ROWS / 2) - 0.5;
                     const isCenterPiece = (x === Math.floor(centerX) && y === Math.floor(centerY));
 
@@ -1412,6 +1426,44 @@ function drawOffice() {
                         ctx.fillRect(cellX + GRID_SIZE / 2, cellY + GRID_SIZE / 2, 10, 5);
                         ctx.fillRect(cellX + GRID_SIZE / 2 + 3, cellY + GRID_SIZE / 2 + 5, 10, 5);
                     }
+                    break;
+
+                case OBJECTS.TABLE:
+                    // Draw table
+                    ctx.fillStyle = COLORS.table;
+                    ctx.fillRect(cellX, cellY, GRID_SIZE, GRID_SIZE);
+                    
+                    // Table surface with wood grain
+                    ctx.fillStyle = '#8B5A2B';
+                    ctx.fillRect(cellX + 2, cellY + 2, GRID_SIZE - 4, GRID_SIZE - 4);
+                    
+                    // Wood grain effect
+                    ctx.strokeStyle = '#7C4A2A';
+                    ctx.lineWidth = 0.5;
+                    ctx.beginPath();
+                    
+                    // Add wood grain lines
+                    for (let i = 1; i < 5; i++) {
+                        const lineY = cellY + 2 + i * (GRID_SIZE - 4) / 5;
+                        ctx.moveTo(cellX + 2, lineY);
+                        ctx.lineTo(cellX + GRID_SIZE - 2, lineY);
+                        
+                        // Add some wavy grain pattern
+                        const waveY = cellY + 2 + (i - 0.5) * (GRID_SIZE - 4) / 5;
+                        ctx.moveTo(cellX + 2, waveY);
+                        ctx.bezierCurveTo(
+                            cellX + GRID_SIZE / 3, waveY - 1,
+                            cellX + GRID_SIZE * 2 / 3, waveY + 1,
+                            cellX + GRID_SIZE - 2, waveY
+                        );
+                    }
+                    
+                    ctx.stroke();
+                    
+                    // Add border to make the table appear more polished
+                    ctx.strokeStyle = '#6B4226';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(cellX + 2, cellY + 2, GRID_SIZE - 4, GRID_SIZE - 4);
                     break;
 
                 default:
