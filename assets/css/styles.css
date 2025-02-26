@@ -1,264 +1,225 @@
-html,
-body {
+* {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
-    overflow-x: hidden;
-    scroll-behavior: smooth;
-    font-family: 'Roboto', sans-serif;
-    height: 400vh;
-    background: #000;
 }
 
-#galaxy {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: #000;
+body {
     overflow: hidden;
-    z-index: 0;
-    transition: transform 1.5s ease;
-    transform-style: preserve-3d;
+    background-color: #f5f7fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-.star {
-    position: absolute;
-    width: 2px;
-    height: 2px;
-    background: #fff;
-    border-radius: 50%;
-    animation: twinkle 5s infinite ease-in-out;
-    opacity: 0.8;
-}
-
-@keyframes twinkle {
-    0% {
-        opacity: 0.5;
-    }
-
-    50% {
-        opacity: 0.7;
-    }
-
-    100% {
-        opacity: 0.8;
-    }
-}
-
-#special-stars-wrapper {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+#main-container {
     display: flex;
-    flex-direction: column;
-    gap: 2rem;
-    pointer-events: none;
-    max-width: 90vw;
-    max-height: 80vh;
-    overflow: auto;
-}
-
-.special-star-row {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-}
-
-.special-star {
-    width: 2px;
-    height: 2px;
-    background: #fff;
-    border-radius: 50%;
-    animation: twinkle 2s infinite ease-in-out;
-    opacity: 0.8;
-    margin-right: 0.5rem;
-    transition: all 0.3s ease;
-}
-
-.star-label {
-    color: #fff;
-    font-size: 1.25rem;
-    text-shadow: 0 0 0.25px #ffffff, 0 0 0.5px #ffffff;
-    opacity: 0;
-    transition: opacity 0.3s;
-    pointer-events: none;
-    white-space: normal;
-}
-
-#galaxy.section3-active .special-star {
-    width: 4px;
-    height: 4px;
-    box-shadow: 0 0 8px #fff, 0 0 15px #fff;
-    opacity: 1;
-}
-
-#galaxy.section3-active .star-label {
-    opacity: 1;
-}
-
-section {
-    position: fixed;
-    top: 0;
-    left: 0;
     width: 100vw;
     height: 100vh;
+    background-color: #f0f2f5;
+}
+
+#left-panel {
+    width: 60%;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    background-color: #f0f2f5;
+}
+
+#right-panel {
+    width: 40%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f0f2f5;
+    position: relative;
+    box-shadow: none;
+}
+
+@media (max-width: 767px) {
+    #main-container {
+        flex-direction: column;
+        background-color: #f0f2f5;
+    }
+
+    #right-panel {
+        width: 100%;
+        height: 30vh;
+        order: 1;
+        overflow-y: auto;
+        background-color: #1e1e1e;
+        box-shadow: none;
+        display: flex;
+        padding: 0;
+    }
+
+    #left-panel {
+        width: 100%;
+        height: 70vh;
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+        position: relative;
+        order: 2;
+        background-color: #f0f2f5;
+    }
+}
+
+#officeCanvas {
+    border: 2px solid #333;
+    background-color: #fff;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    display: block;
+}
+
+@media (max-width: 767px) {
+    #officeCanvas {
+        height: 90%;
+        touch-action: pan-x;
+    }
+}
+
+#terminalBox {
+    width: 80%;
+    height: 600px;
+    background-color: #1e1e1e;
+    color: #0f0;
+    font-family: monospace;
     display: flex;
     flex-direction: column;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    position: relative;
+}
+
+@media (max-width: 767px) {
+    #terminalBox {
+        width: 100%;
+        height: 100%;
+        max-height: none;
+        border-radius: 0;
+        padding: 10px;
+        box-shadow: none;
+        margin: 0;
+    }
+}
+
+#terminalTopBar {
+    display: flex;
+    justify-content: space-between;
     align-items: center;
-    justify-content: center;
-    font-size: 2rem;
-    color: #fff;
-    pointer-events: none;
-    transition: opacity 0.7s ease-in-out;
-    opacity: 1;
+    margin-bottom: 10px;
+}
+
+#chain-info {
+    font-size: 14px;
+    color: #0f0;
+}
+
+#api-status-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.connected-dot {
+    background-color: #0f0;
+}
+
+.disconnected-dot {
+    background-color: red;
+}
+
+#terminalContent {
+    flex: 1;
+    overflow-y: auto;
+    margin-bottom: 10px;
+    white-space: pre-wrap;
+}
+
+#branding {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #0f0;
     text-align: center;
-    background: rgba(0, 0, 0, 0.2);
+    margin: 10px 0 15px 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #0f0;
 }
 
-.hidden {
-    opacity: 0;
-    pointer-events: none;
+.terminal-instructions {
+    color: #0f0;
+    opacity: 0.8;
+    font-size: 0.9em;
+    text-align: center;
+    margin-top: 15px;
 }
 
-.scroll-spacer {
-    width: 100vw;
-    height: 400vh;
-}
-
-#section1 h1 {
-    margin-bottom: 0rem;
-}
-
-h1 {
-    font-size: 4rem;
-    animation: neonFlicker 2.5s infinite alternate;
-    cursor: none;
-}
-
-@keyframes neonFlicker {
-
-    0%,
-    100% {
-        text-shadow: 0 0 4px #ffffff, 0 0 9px #ffffff;
+@media (max-width: 767px) {
+    #branding {
+        font-size: 1.3em;
+        margin: 5px 0 10px 0;
+        padding-bottom: 5px;
     }
-
-    50% {
-        text-shadow: 0 0 3px #ffffff, 0 0 7px #ffffff;
-    }
 }
 
-h2 {
-    font-size: 2.5rem;
-    text-shadow: 0 0 3px #ffffff, 0 0 5px #ffffff;
-    cursor: none;
-    line-height: 1.6;
+#terminalBottomBar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-h3 {
-    font-size: 2rem;
-    line-height: 1.6;
-    width: 60%;
-    margin: 0 auto;
-    text-align: center;
-    text-shadow: 0 0 2px #ffffff, 0 0 3px #ffffff;
-    cursor: none;
+#fetch-status {
+    color: #0f0;
+    font-size: 14px;
+    margin-right: 10px;
+    min-height: 18px;
 }
 
-h4 {
-    font-size: 1.5rem;
-    line-height: 1.5;
-    width: 60%;
-    margin: 0 auto;
-    text-align: center;
-    text-shadow: 0 0 1px #ffffff, 0 0 2px #ffffff;
-    cursor: none;
+#connectBtn {
+    padding: 6px 12px;
+    background-color: #2962ff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background-color 0.2s;
 }
 
-#section2 p {
-    font-family: Georgia, serif;
-    font-size: 1.2rem;
-    line-height: 1.6;
-    width: 60%;
-    margin: 0 auto;
+#connectBtn:hover {
+    background-color: #0039cb;
 }
 
-footer {
-    position: fixed;
-    font-size: 0.8rem;
-    bottom: 0.5rem;
-    width: 100%;
-    text-align: center;
-    color: #fff;
-    background: transparent;
-    padding: 0;
-    pointer-events: none;
-}
-
-#scroll-down-notification {
-    position: fixed;
-    bottom: 5rem;
-    left: 50%;
-    transform: translateX(-50%);
-    color: #fff;
-    font-size: 1.2rem;
-    z-index: 9999;
-    animation: blink 1s infinite;
-    pointer-events: none;
+#debug-info {
+    display: none;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    max-width: 300px;
+    margin-top: 20px;
 }
 
 @keyframes blink {
     0% {
-        opacity: 0.9;
+        opacity: 0;
     }
 
     50% {
-        opacity: 0.5;
+        opacity: 1;
     }
 
     100% {
-        opacity: 0.9;
+        opacity: 0;
     }
 }
 
-@media (max-width: 768px) {
-    #section1 {
-        justify-content: flex-start;
-        padding-top: 30vh;
-    }
-
-    h1 {
-        margin-top: 0;
-        font-size: 3.5rem;
-    }
-
-    h2 {
-        font-size: 2rem;
-        width: 60%;
-    }
-
-    h3 {
-        font-size: 1.6rem;
-        width: 80%;
-    }
-
-    h4 {
-        font-size: 1.4rem;
-        width: 80%;
-    }
-
-    #section2 p {
-        width: 80%;
-        font-size: 1rem;
-    }
-
-    #galaxy.section3-active .special-star {
-        width: 3px;
-        height: 3px;
-    }
-
-    .star-label {
-        font-size: 0.8rem;
-    }
+.blink {
+    animation: blink 1s infinite;
 }

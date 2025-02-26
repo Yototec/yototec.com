@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Yototec</title>
   <meta name="description"
     content="Yototec combines frontier AI innovations, quantitative methods and fundamentals research to turn market data into actionable insights, with a vision of transitioning to AI Agents to perform human-like investment research." />
@@ -15,47 +15,35 @@
     content="Yototec combines frontier AI innovations, quantitative methods and fundamentals research to turn market data into actionable insights." />
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
 
-  <link rel="stylesheet" href="assets/css/styles.css" />
+  <link rel="stylesheet" href="assets/css/styles.css">
 </head>
 
 <body>
-  <div id="galaxy">
-    <div id="special-stars-wrapper"></div>
+  <div id="main-container">
+    <div id="left-panel">
+      <canvas id="officeCanvas" width="800" height="600"></canvas>
+    </div>
+
+    <div id="right-panel">
+      <div id="terminalBox">
+
+        <div id="terminalTopBar">
+          <span id="chain-info">Chain Length: Loading...</span>
+          <span id="api-status-dot" class="disconnected-dot"></span>
+        </div>
+
+        <div id="terminalContent">
+          <div id="branding">Welcome to Yototec - Innovating Market Intelligence</div>
+          <div class="terminal-instructions">Click on an Analyst in the office to see their findings...</div>
+        </div>
+
+        <div id="terminalBottomBar">
+          <span id="fetch-status"></span>
+          <button id="connectBtn">Connect to API</button>
+        </div>
+      </div>
+    </div>
   </div>
-
-  <section id="section1">
-    <h1>Yototec</h1>
-    <h2>Innovating Market Intelligence</h2>
-  </section>
-
-  <section id="section2" class="hidden">
-    <h3>
-      Founded in 2018, Yototec combines frontier AI innovations, quantitative methods
-      and fundamentals research to turn market data into actionable insights.
-    </h3>
-  </section>
-
-  <section id="section3" class="hidden"></section>
-
-  <section id="section4" class="hidden">
-    <h2>Contact Us</h2>
-    <h4>For inquiries or career opportunities,<br>please contact us at info@yototec.com</h4>
-  </section>
-
-  <div class="scroll-spacer"></div>
-
-  <footer>
-    Yototec © All Rights Reserved 2025
-  </footer>
-
-  <div id="scroll-down-notification">
-    <svg width="50" height="30" viewBox="0 0 200 100" fill="none" stroke="#fff" stroke-width="16" stroke-linecap="round"
-      stroke-linejoin="round">
-      <path d="M0,0 L100,60 L200,0" />
-      <path d="M0,40 L100,100 L200,40" />
-    </svg>
-  </div>
-  >
 
   <script src="assets/js/main.js"></script>
 </body>
