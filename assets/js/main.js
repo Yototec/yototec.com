@@ -1440,15 +1440,25 @@ start();
 
 setupMobileScrolling();
 
-setTimeout(() => {
-    for (const person of people) {
-        person.wander();
-        person.state = 'walking';
-        person.speak('Taking a walk');
-    }
+// Immediately assign different starting activities to each person
+people[0].wander(); // BTC analyst takes a walk
+people[0].state = 'walking';
+people[0].speak('Taking a walk');
 
-    setTimeout(startTaskScheduler, 5000);
-}, 2000);
+people[1].goToCoffee(); // ETH analyst gets coffee
+people[1].state = 'walking';
+people[1].speak('Need some coffee to stay focused');
+
+people[2].goToTable(); // SOL analyst goes to the table
+people[2].state = 'walking';
+people[2].speak('Going to take a break at the table');
+
+people[3].goToWindow(); // DOGE analyst goes to the window
+people[3].state = 'walking';
+people[3].speak('Going to get some fresh air');
+
+// Still delay starting the task scheduler to give analysts time to move
+setTimeout(startTaskScheduler, 5000);
 
 // Helper function for drawing rounded rectangles
 function roundedRect(context, x, y, width, height, radius) {
