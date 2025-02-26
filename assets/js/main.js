@@ -5,7 +5,6 @@ const GRID_SIZE = 30;
 const COLS = Math.floor(canvas.width / GRID_SIZE);
 const ROWS = Math.floor(canvas.height / GRID_SIZE);
 const ANIMATION_SPEED = 500;
-const API_POLL_INTERVAL = 10000;
 const REASONING_DISPLAY_TIME = 5000;
 
 const CHAIN_LENGTH_API = "https://api.sentichain.com/blockchain/get_chain_length?network=mainnet";
