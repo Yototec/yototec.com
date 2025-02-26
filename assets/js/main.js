@@ -93,6 +93,8 @@ class Person {
         this.reasoningText = '';
         this.facingDirection = 'down';
         this.animationFrame = 0;
+        this.animationSpeed = 0.5;
+        this.animationPhase = 0; // New property for smoother animation
 
         this.bodyWidth = GRID_SIZE * 0.98;
         this.bodyHeight = GRID_SIZE * 1.12;
@@ -158,23 +160,26 @@ class Person {
     }
 
     drawFromFront(x, y) {
-        const legSpread = this.animationFrame > 10 ? 4 : 0;
+        // Enhanced leg animation with smoother movement
+        const legAngle = Math.sin(this.animationPhase * Math.PI / 10);
+        const legSpread = this.state === 'walking' ? legAngle * 4 : 0;
+        const legHeight = this.state === 'walking' ? this.legHeight + Math.abs(legAngle) * 2 : this.legHeight;
 
-        // Draw legs with better shape
+        // Draw legs with better animation
         ctx.fillStyle = this.uniformColor;
-        // Left leg
+        // Left leg with dynamic position
         ctx.fillRect(
             x - this.bodyWidth / 2,
             y + this.bodyHeight / 2,
             this.legWidth,
-            this.legHeight - legSpread
+            legHeight - legSpread
         );
-        // Right leg
+        // Right leg with opposite phase
         ctx.fillRect(
             x + this.bodyWidth / 2 - this.legWidth,
             y + this.bodyHeight / 2,
             this.legWidth,
-            this.legHeight + legSpread
+            legHeight + legSpread
         );
 
         // Draw body/uniform with rounded corners
@@ -198,10 +203,12 @@ class Person {
         // Add ticker logo on uniform
         this.drawTickerLogo(x, y - this.bodyHeight / 5, this.ticker);
 
-        // Draw arms with better shape
-        const armOffset = this.animationFrame > 10 ? 3 : -3;
+        // Enhanced arm animation for walking
+        const armAngle = Math.sin(this.animationPhase * Math.PI / 10 + Math.PI); // Opposite phase to legs
+        const armOffset = this.state === 'walking' ? armAngle * 3 : 0;
+
         ctx.fillStyle = this.uniformColor;
-        // Left arm
+        // Left arm with dynamic position
         this.roundedRect(
             x - this.bodyWidth / 2 - this.armWidth,
             y - this.bodyHeight / 4 + armOffset,
@@ -209,7 +216,7 @@ class Person {
             this.armHeight,
             3
         );
-        // Right arm
+        // Right arm with opposite phase
         this.roundedRect(
             x + this.bodyWidth / 2,
             y - this.bodyHeight / 4 - armOffset,
@@ -289,23 +296,26 @@ class Person {
     }
 
     drawFromBehind(x, y) {
-        const legSpread = this.animationFrame > 10 ? 4 : 0;
+        // Enhanced leg animation with smoother movement
+        const legAngle = Math.sin(this.animationPhase * Math.PI / 10);
+        const legSpread = this.state === 'walking' ? legAngle * 4 : 0;
+        const legHeight = this.state === 'walking' ? this.legHeight + Math.abs(legAngle) * 2 : this.legHeight;
 
-        // Draw legs with better shape
+        // Draw legs with better animation
         ctx.fillStyle = this.uniformColor;
         // Left leg
         ctx.fillRect(
             x - this.bodyWidth / 2,
             y + this.bodyHeight / 2,
             this.legWidth,
-            this.legHeight - legSpread
+            legHeight - legSpread
         );
         // Right leg
         ctx.fillRect(
             x + this.bodyWidth / 2 - this.legWidth,
             y + this.bodyHeight / 2,
             this.legWidth,
-            this.legHeight + legSpread
+            legHeight + legSpread
         );
 
         // Draw body/uniform with rounded corners
@@ -321,8 +331,10 @@ class Person {
         // Add ticker logo on back of uniform
         this.drawTickerLogo(x, y - this.bodyHeight / 5, this.ticker);
 
-        // Draw arms with better shape
-        const armOffset = this.animationFrame > 10 ? 3 : -3;
+        // Enhanced arm animation for walking
+        const armAngle = Math.sin(this.animationPhase * Math.PI / 10 + Math.PI); // Opposite phase to legs
+        const armOffset = this.state === 'walking' ? armAngle * 3 : 0;
+
         ctx.fillStyle = this.uniformColor;
         // Left arm
         this.roundedRect(
@@ -380,23 +392,29 @@ class Person {
 
     drawFromSide(x, y, side) {
         const direction = (side === 'left') ? -1 : 1;
-        const legOffset = this.animationFrame > 10 ? 4 : -4;
 
-        // Draw legs with better shape
+        // Enhanced leg animation with smoother movement
+        const legPhase = this.animationPhase * Math.PI / 10;
+        const frontLegAngle = Math.sin(legPhase);
+        const backLegAngle = Math.sin(legPhase + Math.PI); // Opposite phase
+        const frontLegOffset = this.state === 'walking' ? frontLegAngle * 4 : 0;
+        const backLegOffset = this.state === 'walking' ? backLegAngle * 4 : 0;
+
+        // Draw legs with better animation
         ctx.fillStyle = this.uniformColor;
         // Front leg
         ctx.fillRect(
             x + direction * (this.bodyWidth / 4),
             y + this.bodyHeight / 2,
             this.legWidth,
-            this.legHeight + legOffset
+            this.legHeight + frontLegOffset
         );
         // Back leg
         ctx.fillRect(
             x - direction * (this.bodyWidth / 4),
             y + this.bodyHeight / 2,
             this.legWidth,
-            this.legHeight - legOffset
+            this.legHeight + backLegOffset
         );
 
         // Draw body/uniform with rounded corners
@@ -419,8 +437,10 @@ class Person {
             y
         );
 
-        // Draw arm with better shape
-        const armOffset = this.animationFrame > 10 ? 3 : -3;
+        // Enhanced arm animation for walking
+        const armAngle = Math.sin(this.animationPhase * Math.PI / 10 + Math.PI); // Opposite phase to legs
+        const armOffset = this.state === 'walking' ? armAngle * 3 : 0;
+
         ctx.fillStyle = this.uniformColor;
         this.roundedRect(
             x + direction * (this.bodyWidth / 4),
@@ -695,6 +715,18 @@ class Person {
     update() {
         if (this.messageTime > 0) {
             this.messageTime--;
+        }
+
+        // Update animation
+        if (this.state === 'walking') {
+            this.animationPhase += this.animationSpeed;
+            if (this.animationPhase >= 20) {
+                this.animationPhase = 0;
+            }
+            this.animationFrame = Math.floor(this.animationPhase);
+        } else {
+            this.animationPhase = 0;
+            this.animationFrame = 0;
         }
 
         if (this.isFetching) {
@@ -1003,9 +1035,9 @@ function initOffice() {
     const tableHeight = 2;
     const tableCenterX = Math.floor(COLS / 2);
     const tableCenterY = Math.floor(ROWS / 2);
-    
-    for (let dx = -Math.floor(tableWidth/2); dx < Math.ceil(tableWidth/2); dx++) {
-        for (let dy = -Math.floor(tableHeight/2); dy < Math.ceil(tableHeight/2); dy++) {
+
+    for (let dx = -Math.floor(tableWidth / 2); dx < Math.ceil(tableWidth / 2); dx++) {
+        for (let dy = -Math.floor(tableHeight / 2); dy < Math.ceil(tableHeight / 2); dy++) {
             office[tableCenterY + dy][tableCenterX + dx] = OBJECTS.TABLE;
         }
     }
@@ -1071,7 +1103,9 @@ function isWalkable(x, y) {
         office[y][x] === OBJECTS.WALL ||
         office[y][x] === OBJECTS.DESK ||
         office[y][x] === OBJECTS.COMPUTER ||
-        office[y][x] === OBJECTS.BALCONY_RAIL
+        office[y][x] === OBJECTS.BALCONY_RAIL ||
+        office[y][x] === OBJECTS.TABLE ||
+        office[y][x] === OBJECTS.COFFEE
     ) {
         return false;
     }
@@ -1432,22 +1466,22 @@ function drawOffice() {
                     // Draw table
                     ctx.fillStyle = COLORS.table;
                     ctx.fillRect(cellX, cellY, GRID_SIZE, GRID_SIZE);
-                    
+
                     // Table surface with wood grain
                     ctx.fillStyle = '#8B5A2B';
                     ctx.fillRect(cellX + 2, cellY + 2, GRID_SIZE - 4, GRID_SIZE - 4);
-                    
+
                     // Wood grain effect
                     ctx.strokeStyle = '#7C4A2A';
                     ctx.lineWidth = 0.5;
                     ctx.beginPath();
-                    
+
                     // Add wood grain lines
                     for (let i = 1; i < 5; i++) {
                         const lineY = cellY + 2 + i * (GRID_SIZE - 4) / 5;
                         ctx.moveTo(cellX + 2, lineY);
                         ctx.lineTo(cellX + GRID_SIZE - 2, lineY);
-                        
+
                         // Add some wavy grain pattern
                         const waveY = cellY + 2 + (i - 0.5) * (GRID_SIZE - 4) / 5;
                         ctx.moveTo(cellX + 2, waveY);
@@ -1457,9 +1491,9 @@ function drawOffice() {
                             cellX + GRID_SIZE - 2, waveY
                         );
                     }
-                    
+
                     ctx.stroke();
-                    
+
                     // Add border to make the table appear more polished
                     ctx.strokeStyle = '#6B4226';
                     ctx.lineWidth = 2;
