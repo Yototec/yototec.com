@@ -11,11 +11,27 @@ const REASONING_DISPLAY_TIME = 5000;
 const CHAIN_LENGTH_API = "https://api.sentichain.com/blockchain/get_chain_length?network=mainnet";
 const REASONING_API_BASE = "https://api.sentichain.com/agent/get_reasoning_match_chunk_end?summary_type=observation_public&user_chunk_end=";
 
+const OBJECTS = {
+    EMPTY: 0,
+    WALL: 1,
+    CHAIR: 2,
+    DESK: 3,
+    COMPUTER: 4,
+    COFFEE: 5,
+    PLANT: 6,
+    CARPET: 7,
+    WINDOW: 8,
+    BALCONY: 9,
+    BALCONY_RAIL: 10,
+    TABLE: 11
+};
+
 const COLORS = {
     floor: '#ffffff',
     carpet: '#f8f8f8',
     wall: '#cccccc',
     desk: '#8B4513',
+    table: '#6d4c41',
     computer: '#333333',
     screen: '#87CEEB',
     chair: '#4a4a4a',
@@ -30,19 +46,7 @@ const COLORS = {
     cloud: '#ffffff'
 };
 
-const OBJECTS = {
-    EMPTY: 0,
-    WALL: 1,
-    CHAIR: 2,
-    DESK: 3,
-    COMPUTER: 4,
-    COFFEE: 5,
-    PLANT: 6,
-    CARPET: 7,
-    WINDOW: 8,
-    BALCONY: 9,
-    BALCONY_RAIL: 10
-};
+// OBJECTS constant has been moved to office.js
 
 let apiConnected = false;
 let chainLength = 0;
@@ -71,524 +75,6 @@ function debugLog(message) {
 }
 
 let office = [];
-
-class Person {
-    constructor(x, y, name, ticker) {
-        this.x = x;
-        this.y = y;
-        this.name = name;
-        this.ticker = ticker;
-        this.uniformColor = COLORS[ticker.toLowerCase() + 'Uniform'];
-        this.destination = null;
-        this.path = [];
-        this.state = 'idle';
-        this.stateTime = 0;
-        this.interactionPartner = null;
-        this.desk = findDeskForTicker(ticker);
-        this.messageTime = 0;
-        this.message = '';
-        this.isFetching = false;
-        this.reasoningText = '';
-        this.facingDirection = 'down';
-        this.animationFrame = 0;
-
-        this.bodyWidth = GRID_SIZE * 0.98;
-        this.bodyHeight = GRID_SIZE * 1.12;
-        this.headSize = GRID_SIZE * 0.7;
-        this.armWidth = GRID_SIZE * 0.28;
-        this.armHeight = GRID_SIZE * 0.56;
-        this.legWidth = GRID_SIZE * 0.35;
-        this.legHeight = GRID_SIZE * 0.42;
-    }
-
-    speak(message) {
-        const maxWords = 20;
-        const words = message.split(' ');
-        if (words.length > maxWords) {
-            message = words.slice(0, maxWords).join(' ') + '...';
-        }
-        this.message = message;
-        this.messageTime = 10;
-    }
-
-    draw() {
-        const centerX = this.x * GRID_SIZE + GRID_SIZE / 2;
-        const centerY = this.y * GRID_SIZE + GRID_SIZE / 2;
-
-        if (this.state === 'walking' && this.path.length > 0) {
-            const nextPoint = this.path[0];
-            if (nextPoint.x > this.x) this.facingDirection = 'right';
-            else if (nextPoint.x < this.x) this.facingDirection = 'left';
-            else if (nextPoint.y > this.y) this.facingDirection = 'down';
-            else if (nextPoint.y < this.y) this.facingDirection = 'up';
-        } else if (this.state === 'working') {
-            this.facingDirection = 'up';
-        }
-
-        if (this.state === 'walking') {
-            this.animationFrame = (this.animationFrame + 1) % 20;
-        } else {
-            this.animationFrame = 0;
-        }
-
-        if (this.facingDirection === 'up') {
-            this.drawFromBehind(centerX, centerY);
-        } else if (this.facingDirection === 'down') {
-            this.drawFromFront(centerX, centerY);
-        } else if (this.facingDirection === 'left') {
-            this.drawFromSide(centerX, centerY, 'left');
-        } else {
-            this.drawFromSide(centerX, centerY, 'right');
-        }
-
-        if (this.message && this.messageTime > 0) {
-            drawSpeechBubble(centerX, centerY - GRID_SIZE * 1.8, this.message);
-        }
-
-        ctx.fillStyle = '#000';
-        ctx.font = '12px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText(
-            this.name,
-            centerX,
-            centerY + GRID_SIZE * 1.5 + 10
-        );
-    }
-
-    drawFromFront(x, y) {
-        const legSpread = this.animationFrame > 10 ? 4 : 0;
-
-        ctx.fillStyle = this.uniformColor;
-        ctx.fillRect(
-            x - this.bodyWidth / 2,
-            y + this.bodyHeight / 2,
-            this.legWidth,
-            this.legHeight - legSpread
-        );
-        ctx.fillRect(
-            x + this.bodyWidth / 2 - this.legWidth,
-            y + this.bodyHeight / 2,
-            this.legWidth,
-            this.legHeight + legSpread
-        );
-
-        ctx.fillStyle = this.uniformColor;
-        ctx.fillRect(
-            x - this.bodyWidth / 2,
-            y - this.bodyHeight / 2,
-            this.bodyWidth,
-            this.bodyHeight
-        );
-
-        const armOffset = this.animationFrame > 10 ? 3 : -3;
-        ctx.fillRect(
-            x - this.bodyWidth / 2 - this.armWidth,
-            y - this.bodyHeight / 4 + armOffset,
-            this.armWidth,
-            this.armHeight
-        );
-        ctx.fillRect(
-            x + this.bodyWidth / 2,
-            y - this.bodyHeight / 4 - armOffset,
-            this.armWidth,
-            this.armHeight
-        );
-
-        ctx.fillStyle = COLORS.skin;
-        ctx.beginPath();
-        ctx.arc(
-            x,
-            y - this.bodyHeight / 2 - this.headSize / 2,
-            this.headSize / 2,
-            0,
-            Math.PI * 2
-        );
-        ctx.fill();
-
-        ctx.fillStyle = '#000';
-        ctx.beginPath();
-        ctx.arc(
-            x - this.headSize / 4,
-            y - this.bodyHeight / 2 - this.headSize / 2,
-            this.headSize / 10,
-            0,
-            Math.PI * 2
-        );
-        ctx.fill();
-        ctx.beginPath();
-        ctx.arc(
-            x + this.headSize / 4,
-            y - this.bodyHeight / 2 - this.headSize / 2,
-            this.headSize / 10,
-            0,
-            Math.PI * 2
-        );
-        ctx.fill();
-    }
-
-    drawFromBehind(x, y) {
-        const legSpread = this.animationFrame > 10 ? 4 : 0;
-
-        ctx.fillStyle = this.uniformColor;
-        ctx.fillRect(
-            x - this.bodyWidth / 2,
-            y + this.bodyHeight / 2,
-            this.legWidth,
-            this.legHeight - legSpread
-        );
-        ctx.fillRect(
-            x + this.bodyWidth / 2 - this.legWidth,
-            y + this.bodyHeight / 2,
-            this.legWidth,
-            this.legHeight + legSpread
-        );
-
-        ctx.fillStyle = this.uniformColor;
-        ctx.fillRect(
-            x - this.bodyWidth / 2,
-            y - this.bodyHeight / 2,
-            this.bodyWidth,
-            this.bodyHeight
-        );
-
-        const armOffset = this.animationFrame > 10 ? 3 : -3;
-        ctx.fillRect(
-            x - this.bodyWidth / 2 - this.armWidth,
-            y - this.bodyHeight / 4 + armOffset,
-            this.armWidth,
-            this.armHeight
-        );
-        ctx.fillRect(
-            x + this.bodyWidth / 2,
-            y - this.bodyHeight / 4 - armOffset,
-            this.armWidth,
-            this.armHeight
-        );
-
-        ctx.fillStyle = COLORS.skin;
-        ctx.beginPath();
-        ctx.arc(
-            x,
-            y - this.bodyHeight / 2 - this.headSize / 2,
-            this.headSize / 2,
-            0,
-            Math.PI * 2
-        );
-        ctx.fill();
-    }
-
-    drawFromSide(x, y, side) {
-        const direction = (side === 'left') ? -1 : 1;
-        const legOffset = this.animationFrame > 10 ? 4 : -4;
-
-        ctx.fillStyle = this.uniformColor;
-        ctx.fillRect(
-            x + direction * (this.bodyWidth / 4),
-            y + this.bodyHeight / 2,
-            this.legWidth,
-            this.legHeight + legOffset
-        );
-        ctx.fillRect(
-            x - direction * (this.bodyWidth / 4),
-            y + this.bodyHeight / 2,
-            this.legWidth,
-            this.legHeight - legOffset
-        );
-
-        ctx.fillStyle = this.uniformColor;
-        ctx.fillRect(
-            x - this.bodyWidth / 2,
-            y - this.bodyHeight / 2,
-            this.bodyWidth,
-            this.bodyHeight
-        );
-
-        const armOffset = this.animationFrame > 10 ? 3 : -3;
-        ctx.fillRect(
-            x + direction * (this.bodyWidth / 4),
-            y - this.bodyHeight / 4 + armOffset,
-            this.armWidth * direction,
-            this.armHeight
-        );
-
-        ctx.fillStyle = COLORS.skin;
-        ctx.beginPath();
-        ctx.arc(
-            x + direction * (this.bodyWidth / 4),
-            y - this.bodyHeight / 2 - this.headSize / 2,
-            this.headSize / 2,
-            0,
-            Math.PI * 2
-        );
-        ctx.fill();
-
-        ctx.fillStyle = '#000';
-        ctx.beginPath();
-        ctx.arc(
-            x + direction * (this.bodyWidth / 4 + this.headSize / 4),
-            y - this.bodyHeight / 2 - this.headSize / 2,
-            this.headSize / 10,
-            0,
-            Math.PI * 2
-        );
-        ctx.fill();
-    }
-
-    update() {
-        if (this.messageTime > 0) {
-            this.messageTime--;
-        }
-
-        if (this.isFetching) {
-            if (this.x !== this.desk.x || this.y !== this.desk.y) {
-                this.goToDesk();
-            }
-            else {
-                this.facingDirection = 'up';
-            }
-            return;
-        }
-
-        switch (this.state) {
-            case 'idle':
-                this.stateTime++;
-                if (this.stateTime > 10) {
-                    this.stateTime = 0;
-                    const rand = Math.random();
-                    if (rand < 0.3) {
-                        this.goToDesk();
-                    } else if (rand < 0.6) {
-                        this.wander();
-                        this.state = 'walking';
-                        this.speak('Taking a walk');
-                    } else {
-                        this.findInteraction();
-                    }
-                }
-                break;
-
-            case 'walking':
-                if (this.path.length > 0) {
-                    const nextPoint = this.path.shift();
-                    this.x = nextPoint.x;
-                    this.y = nextPoint.y;
-                } else {
-                    this.state = 'idle';
-                    this.stateTime = 0;
-                    if (this.x === this.desk.x && this.y === this.desk.y) {
-                        this.state = 'working';
-                        this.stateTime = 0;
-                        this.speak('Reviewing data');
-                    } else if (this.interactionPartner) {
-                        const partner = people.find(p => p.name === this.interactionPartner);
-                        if (partner && this.isAdjacentTo(partner)) {
-                            this.interact(partner);
-                        } else {
-                            this.interactionPartner = null;
-                        }
-                    }
-                }
-                break;
-
-            case 'working':
-                this.stateTime++;
-                if (this.stateTime > 15) {
-                    this.state = 'idle';
-                    this.stateTime = 0;
-                }
-                break;
-
-            case 'talking':
-                this.stateTime++;
-                if (this.stateTime > 10) {
-                    this.state = 'idle';
-                    this.stateTime = 0;
-                    this.interactionPartner = null;
-                }
-                break;
-        }
-    }
-
-    goToDesk() {
-        this.setDestination(this.desk.x, this.desk.y);
-        this.state = 'walking';
-        this.speak('Going to my station');
-    }
-
-    wander() {
-        let tries = 0;
-        let validMove = false;
-        while (!validMove && tries < 10) {
-            tries++;
-            const randomX = Math.floor(Math.random() * COLS);
-            const randomY = Math.floor(Math.random() * ROWS);
-            if (isWalkable(randomX, randomY)) {
-                this.setDestination(randomX, randomY);
-                validMove = true;
-            }
-        }
-        if (!validMove) {
-            this.goToDesk();
-        }
-    }
-
-    setDestination(x, y) {
-        this.destination = { x, y };
-        this.path = findPath(this.x, this.y, x, y);
-    }
-
-    findInteraction() {
-        const possiblePartners = people.filter(p => p !== this && !p.isFetching);
-        if (possiblePartners.length > 0) {
-            const partner = possiblePartners[Math.floor(Math.random() * possiblePartners.length)];
-            this.interactionPartner = partner.name;
-            this.findPathToAdjacent(partner.x, partner.y);
-            this.state = 'walking';
-            this.speak(`Going to talk to ${partner.name}`);
-        } else {
-            this.wander();
-            this.state = 'walking';
-        }
-    }
-
-    findPathToAdjacent(targetX, targetY) {
-        const adjacentCells = [
-            { x: targetX - 1, y: targetY },
-            { x: targetX + 1, y: targetY },
-            { x: targetX, y: targetY - 1 },
-            { x: targetX, y: targetY + 1 }
-        ].filter(cell => isWalkable(cell.x, cell.y));
-        if (adjacentCells.length > 0) {
-            let closestCell = adjacentCells[0];
-            let closestDist = Infinity;
-            for (const cell of adjacentCells) {
-                const dist = Math.abs(cell.x - this.x) + Math.abs(cell.y - this.y);
-                if (dist < closestDist) {
-                    closestDist = dist;
-                    closestCell = cell;
-                }
-            }
-            this.setDestination(closestCell.x, closestCell.y);
-        }
-    }
-
-    isAdjacentTo(other) {
-        const dx = Math.abs(this.x - other.x);
-        const dy = Math.abs(this.y - other.y);
-        return (dx === 1 && dy === 0) || (dx === 0 && dy === 1);
-    }
-
-    interact(partner) {
-        this.state = 'talking';
-        this.stateTime = 0;
-        // Face each other
-        if (this.x < partner.x) {
-            this.facingDirection = 'right';
-            partner.facingDirection = 'left';
-        } else if (this.x > partner.x) {
-            this.facingDirection = 'left';
-            partner.facingDirection = 'right';
-        } else if (this.y < partner.y) {
-            this.facingDirection = 'down';
-            partner.facingDirection = 'up';
-        } else {
-            this.facingDirection = 'up';
-            partner.facingDirection = 'down';
-        }
-
-        if (partner.state !== 'talking' && !partner.isFetching) {
-            partner.state = 'talking';
-            partner.stateTime = 0;
-            partner.interactionPartner = this.name;
-
-            const cryptoInteractions = [
-                "Market looks volatile today",
-                "Have you seen the latest trend?",
-                "Bullish or bearish?",
-                "Major resistance ahead",
-                "Support levels are holding"
-            ];
-            const tickerComments = {
-                btc: ["Bitcoin's dominance is strong", "Hash rate is increasing", "On-chain metrics look positive"],
-                eth: ["ETH gas fees are dropping", "Smart contract activity is up", "Layer 2 adoption growing"],
-                sol: ["Solana TPS hitting new highs", "DeFi on SOL expanding", "Low latency is key"],
-                doge: ["Meme coins gaining traction", "Community engagement is high", "Social metrics moving"]
-            };
-
-            if (Math.random() < 0.5) {
-                this.speak(cryptoInteractions[Math.floor(Math.random() * cryptoInteractions.length)]);
-                setTimeout(() => {
-                    if (partner.state === 'talking' && partner.interactionPartner === this.name && !partner.isFetching) {
-                        partner.speak(cryptoInteractions[Math.floor(Math.random() * cryptoInteractions.length)]);
-                    }
-                }, 1000);
-            } else {
-                const myComments = tickerComments[this.ticker.toLowerCase()];
-                this.speak(myComments[Math.floor(Math.random() * myComments.length)]);
-                setTimeout(() => {
-                    if (partner.state === 'talking' && partner.interactionPartner === this.name && !partner.isFetching) {
-                        const partnerComments = tickerComments[partner.ticker.toLowerCase()];
-                        partner.speak(partnerComments[Math.floor(Math.random() * partnerComments.length)]);
-                    }
-                }, 1000);
-            }
-        }
-    }
-
-    startFetching() {
-        debugLog(`${this.name} starting to fetch data`);
-        this.isFetching = true;
-        this.speak("Analyzing the market");
-
-        if (this.x !== this.desk.x || this.y !== this.desk.y) {
-            this.setDestination(this.desk.x, this.desk.y);
-        }
-
-        updateSyncStatus(`${this.name} performing analysis...`);
-
-        this.reasoningText = '';
-    }
-
-    displayReasoning(reasoning) {
-        debugLog(`${this.name} displaying reasoning`);
-        this.speak("Analysis complete");
-
-        const terminalContent = document.getElementById('terminalContent');
-        if (terminalContent) {
-            const timestamp = new Date().toLocaleTimeString();
-            let formattedReasoning = reasoning;
-
-            formattedReasoning = formattedReasoning.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-
-            if (!formattedReasoning.includes("Market Analysis:")) {
-                const ticker = this.ticker.toLowerCase();
-
-                let structuredReasoning = `<strong>FINAL ANALYSIS REPORT</strong>\n\n`;
-                structuredReasoning += formattedReasoning.split('\n')[0] + '\n\n';
-                formattedReasoning = structuredReasoning;
-            }
-
-            this.reasoningText = `<strong>=== ${this.name} Analysis Results ===</strong>\n` +
-                `<span style="color: #0f0">[${timestamp}] Analysis completed successfully!</span>\n\n` +
-                formattedReasoning;
-
-            terminalContent.innerHTML = this.reasoningText;
-
-            addToTerminalHistory(`${this.name} completed analysis - NEW INSIGHTS FOUND`);
-        }
-
-        updateSyncStatus(`${this.name} finished analysis and found something new!`);
-
-        setTimeout(() => {
-            debugLog(`${this.name} done fetching reasoning`);
-            this.isFetching = false;
-            currentFetchingTicker = null;
-            isTaskInProgress = false;
-            scheduleNextTask();
-        }, REASONING_DISPLAY_TIME);
-    }
-}
-
 let people = [];
 let animationTimer;
 let apiPollTimer;
@@ -640,19 +126,25 @@ function initOffice() {
     createWorkstation(COLS - 10, 5);    // SOL
     createWorkstation(COLS - 10, 15);   // DOGE
 
-    office[Math.floor(ROWS / 2)][Math.floor(COLS / 2)] = OBJECTS.COFFEE;
+    // Create a rectangular table in the middle of the office
+    const tableWidth = 4;
+    const tableHeight = 2;
+    const tableCenterX = Math.floor(COLS / 2);
+    const tableCenterY = Math.floor(ROWS / 2);
 
-    const plantPositions = [
-        { x: 3, y: 3 },
-        { x: COLS - 4, y: 3 },
-        { x: 3, y: ROWS - 4 },
-        { x: COLS - 4, y: ROWS - 4 },
-        { x: Math.floor(COLS / 2), y: 3 },
-        { x: Math.floor(COLS / 2), y: ROWS - 4 }
-    ];
-    for (const pos of plantPositions) {
-        office[pos.y][pos.x] = OBJECTS.PLANT;
+    for (let dx = -Math.floor(tableWidth / 2); dx < Math.ceil(tableWidth / 2); dx++) {
+        for (let dy = -Math.floor(tableHeight / 2); dy < Math.ceil(tableHeight / 2); dy++) {
+            office[tableCenterY + dy][tableCenterX + dx] = OBJECTS.TABLE;
+        }
     }
+
+    // Create a coffee area (2x2 grid) slightly to the right of center
+    const coffeeX = Math.floor(COLS / 2) + 3; // Moved right by 3 spaces
+    const coffeeY = Math.floor(ROWS / 2) - 1;
+    office[coffeeY][coffeeX] = OBJECTS.COFFEE;
+    office[coffeeY][coffeeX + 1] = OBJECTS.COFFEE;
+    office[coffeeY + 1][coffeeX] = OBJECTS.COFFEE;
+    office[coffeeY + 1][coffeeX + 1] = OBJECTS.COFFEE;
 
     const deskPositions = {
         btc: { x: 6, y: 6 },
@@ -698,8 +190,6 @@ function createWorkstation(x, y) {
         }
     }
 
-    office[y + 1][x] = OBJECTS.CHAIR;
-
     office[y - 1][x] = OBJECTS.COMPUTER;
 }
 
@@ -709,7 +199,9 @@ function isWalkable(x, y) {
         office[y][x] === OBJECTS.WALL ||
         office[y][x] === OBJECTS.DESK ||
         office[y][x] === OBJECTS.COMPUTER ||
-        office[y][x] === OBJECTS.BALCONY_RAIL
+        office[y][x] === OBJECTS.BALCONY_RAIL ||
+        office[y][x] === OBJECTS.TABLE ||
+        office[y][x] === OBJECTS.COFFEE
     ) {
         return false;
     }
@@ -855,19 +347,72 @@ function drawOffice() {
             const cellY = y * GRID_SIZE;
             switch (office[y][x]) {
                 case OBJECTS.CARPET:
+                    // Base carpet color
                     ctx.fillStyle = COLORS.carpet;
                     ctx.fillRect(cellX, cellY, GRID_SIZE, GRID_SIZE);
-                    ctx.strokeStyle = '#f0f0f0';
-                    ctx.lineWidth = 0.5;
-                    ctx.beginPath();
-                    if ((x + y) % 2 === 0) {
-                        ctx.moveTo(cellX, cellY);
-                        ctx.lineTo(cellX + GRID_SIZE, cellY + GRID_SIZE);
+
+                    // Add carpet texture and pattern
+                    const patternType = (x + Math.floor(y / 2)) % 3; // Create different pattern sections
+
+                    // Draw carpet fibers and texture
+                    ctx.strokeStyle = ((x + y) % 2 === 0) ? '#e5e0da' : '#d8d4ce';
+                    ctx.lineWidth = 0.4;
+
+                    if (patternType === 0) {
+                        // Diagonal texture pattern
+                        ctx.beginPath();
+                        for (let i = 0; i < GRID_SIZE; i += 3) {
+                            ctx.moveTo(cellX, cellY + i);
+                            ctx.lineTo(cellX + i, cellY);
+
+                            ctx.moveTo(cellX + GRID_SIZE, cellY + i);
+                            ctx.lineTo(cellX + GRID_SIZE - i, cellY);
+
+                            ctx.moveTo(cellX + i, cellY + GRID_SIZE);
+                            ctx.lineTo(cellX, cellY + GRID_SIZE - i);
+
+                            ctx.moveTo(cellX + GRID_SIZE - i, cellY + GRID_SIZE);
+                            ctx.lineTo(cellX + GRID_SIZE, cellY + GRID_SIZE - i);
+                        }
+                        ctx.stroke();
+                    } else if (patternType === 1) {
+                        // Square pattern with subtle details
+                        ctx.beginPath();
+                        ctx.rect(cellX + 4, cellY + 4, GRID_SIZE - 8, GRID_SIZE - 8);
+                        ctx.stroke();
+
+                        ctx.beginPath();
+                        ctx.rect(cellX + 8, cellY + 8, GRID_SIZE - 16, GRID_SIZE - 16);
+                        ctx.stroke();
                     } else {
-                        ctx.moveTo(cellX + GRID_SIZE, cellY);
-                        ctx.lineTo(cellX, cellY + GRID_SIZE);
+                        // Dotted texture effect
+                        for (let i = 4; i < GRID_SIZE; i += 6) {
+                            for (let j = 4; j < GRID_SIZE; j += 6) {
+                                ctx.beginPath();
+                                ctx.arc(cellX + i, cellY + j, 0.5, 0, Math.PI * 2);
+                                ctx.stroke();
+                            }
+                        }
                     }
-                    ctx.stroke();
+
+                    // Add subtle color variation to create depth
+                    if ((x * y) % 5 === 0) {
+                        ctx.fillStyle = 'rgba(0, 0, 0, 0.03)';
+                        ctx.fillRect(cellX, cellY, GRID_SIZE, GRID_SIZE);
+                    }
+
+                    // Add occasional "wear" marks on the carpet
+                    if ((x * y) % 31 === 0) {
+                        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+                        const wearSize = 3 + Math.random() * 4;
+                        ctx.beginPath();
+                        ctx.arc(
+                            cellX + GRID_SIZE / 2 + (Math.random() * 6 - 3),
+                            cellY + GRID_SIZE / 2 + (Math.random() * 6 - 3),
+                            wearSize, 0, Math.PI * 2
+                        );
+                        ctx.fill();
+                    }
                     break;
 
                 case OBJECTS.WALL:
@@ -908,110 +453,356 @@ function drawOffice() {
                     ctx.strokeStyle = '#5d2906';
                     ctx.lineWidth = 0.5;
                     ctx.beginPath();
-                    for (let i = 1; i < 5; i++) {
-                        ctx.moveTo(cellX + 2, cellY + 2 + i * 3);
-                        ctx.lineTo(cellX + GRID_SIZE - 2, cellY + 2 + i * 3);
+
+                    for (let i = 1; i < 8; i++) {
+                        const yOffset = cellY + 2 + i * (GRID_SIZE - 4) / 8;
+                        ctx.moveTo(cellX + 2, yOffset);
+                        ctx.lineTo(cellX + GRID_SIZE - 2, yOffset);
+
+                        if (i % 2 === 0) {
+                            ctx.moveTo(cellX + 2, yOffset - 1);
+                            ctx.bezierCurveTo(
+                                cellX + GRID_SIZE / 3, yOffset - 3,
+                                cellX + GRID_SIZE * 2 / 3, yOffset + 3,
+                                cellX + GRID_SIZE - 2, yOffset - 1
+                            );
+                        }
                     }
+
+                    for (let i = 1; i < 4; i++) {
+                        const xOffset = cellX + 2 + i * (GRID_SIZE - 4) / 4;
+                        ctx.moveTo(xOffset, cellY + 2);
+                        ctx.lineTo(xOffset, cellY + GRID_SIZE - 2);
+                    }
+
                     ctx.stroke();
-                    break;
 
-                case OBJECTS.CHAIR:
-                    ctx.fillStyle = '#333';
-                    ctx.beginPath();
-                    ctx.arc(cellX + GRID_SIZE / 2, cellY + GRID_SIZE * 3 / 4, GRID_SIZE / 5, 0, Math.PI * 2);
-                    ctx.fill();
-
-                    ctx.fillStyle = '#777';
-                    ctx.fillRect(cellX + GRID_SIZE * 0.45, cellY + GRID_SIZE * 0.4, GRID_SIZE * 0.1, GRID_SIZE * 0.35);
-
-                    ctx.fillStyle = COLORS.chair;
-                    ctx.fillRect(cellX + GRID_SIZE / 4, cellY + GRID_SIZE / 4, GRID_SIZE / 2, GRID_SIZE / 3);
-
-                    ctx.fillRect(cellX + GRID_SIZE / 3, cellY, GRID_SIZE / 3, GRID_SIZE / 4);
-
-                    ctx.strokeStyle = '#555';
-                    ctx.lineWidth = 1;
-                    ctx.strokeRect(cellX + GRID_SIZE / 4, cellY + GRID_SIZE / 4, GRID_SIZE / 2, GRID_SIZE / 3);
+                    ctx.strokeStyle = '#8B4513';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(cellX + 2, cellY + 2, GRID_SIZE - 4, GRID_SIZE - 4);
                     break;
 
                 case OBJECTS.COMPUTER:
+                    // Draw desk surface under computer
                     ctx.fillStyle = '#f5f5f5';
                     ctx.fillRect(cellX, cellY, GRID_SIZE, GRID_SIZE);
 
+                    // Monitor stand - more elegant design
+                    ctx.fillStyle = '#222222';
+                    ctx.beginPath();
+                    ctx.moveTo(cellX + GRID_SIZE * 0.4, cellY + GRID_SIZE * 0.75);
+                    ctx.lineTo(cellX + GRID_SIZE * 0.6, cellY + GRID_SIZE * 0.75);
+                    ctx.lineTo(cellX + GRID_SIZE * 0.55, cellY + GRID_SIZE * 0.85);
+                    ctx.lineTo(cellX + GRID_SIZE * 0.45, cellY + GRID_SIZE * 0.85);
+                    ctx.closePath();
+                    ctx.fill();
+
+                    // Stand base
+                    ctx.fillStyle = '#333333';
+                    ctx.beginPath();
+                    ctx.ellipse(
+                        cellX + GRID_SIZE / 2,
+                        cellY + GRID_SIZE * 0.85,
+                        GRID_SIZE * 0.2,
+                        GRID_SIZE * 0.06,
+                        0, 0, Math.PI * 2
+                    );
+                    ctx.fill();
+
+                    // Neck of the stand
+                    ctx.fillStyle = '#222222';
+                    ctx.fillRect(
+                        cellX + GRID_SIZE * 0.47,
+                        cellY + GRID_SIZE * 0.55,
+                        GRID_SIZE * 0.06,
+                        GRID_SIZE * 0.2
+                    );
+
+                    // Monitor frame - outside bezel
                     ctx.fillStyle = COLORS.computer;
-                    ctx.fillRect(cellX + GRID_SIZE / 4, cellY + GRID_SIZE * 2 / 3, GRID_SIZE / 2, GRID_SIZE / 6);
+                    roundedRect(
+                        ctx,
+                        cellX + GRID_SIZE * 0.15,
+                        cellY + GRID_SIZE * 0.1,
+                        GRID_SIZE * 0.7,
+                        GRID_SIZE * 0.45,
+                        4
+                    );
 
-                    ctx.fillRect(cellX + GRID_SIZE * 0.45, cellY + GRID_SIZE * 0.5, GRID_SIZE * 0.1, GRID_SIZE * 0.2);
-
-                    ctx.fillRect(cellX + GRID_SIZE / 6, cellY + GRID_SIZE / 6, GRID_SIZE * 2 / 3, GRID_SIZE / 2);
-
+                    // Screen - inside of bezel
                     ctx.fillStyle = COLORS.screen;
-                    ctx.fillRect(cellX + GRID_SIZE / 6 + 2, cellY + GRID_SIZE / 6 + 2, GRID_SIZE * 2 / 3 - 4, GRID_SIZE / 2 - 4);
+                    roundedRect(
+                        ctx,
+                        cellX + GRID_SIZE * 0.17,
+                        cellY + GRID_SIZE * 0.12,
+                        GRID_SIZE * 0.66,
+                        GRID_SIZE * 0.41,
+                        2
+                    );
 
+                    // Determine what ticker to show based on location
+                    let ticker = '';
+                    const deskX = Math.floor(cellX / GRID_SIZE);
+                    const deskY = Math.floor(cellY / GRID_SIZE);
+
+                    if (deskX < COLS / 2 && deskY < ROWS / 2) ticker = 'btc';
+                    else if (deskX < COLS / 2) ticker = 'eth';
+                    else if (deskY < ROWS / 2) ticker = 'sol';
+                    else ticker = 'doge';
+
+                    // Chart data based on ticker
+                    const chartColor = ticker === 'btc' ? '#F7931A' :
+                        ticker === 'eth' ? '#627EEA' :
+                            ticker === 'sol' ? '#00FFA3' : '#C3A634';
+
+                    // Draw screen content - price chart
+                    ctx.strokeStyle = chartColor;
+                    ctx.lineWidth = 1.5;
+                    ctx.beginPath();
+                    ctx.moveTo(cellX + GRID_SIZE * 0.18, cellY + GRID_SIZE * 0.32);
+
+                    // Create a price chart specific to the ticker
+                    const points = 8;
+                    const volatility = ticker === 'btc' ? 0.05 :
+                        ticker === 'eth' ? 0.07 :
+                            ticker === 'sol' ? 0.09 : 0.11;
+
+                    // Generate the chart line
+                    let prevY = cellY + GRID_SIZE * (0.32 - Math.random() * 0.1);
+                    for (let i = 1; i <= points; i++) {
+                        const x = cellX + GRID_SIZE * (0.18 + (i * 0.64 / points));
+                        const direction = Math.random() > 0.5 ? 1 : -1;
+                        const change = Math.random() * volatility * direction;
+                        const y = prevY + change * GRID_SIZE;
+                        // Keep the chart within the screen bounds
+                        const yBounded = Math.max(cellY + GRID_SIZE * 0.13,
+                            Math.min(cellY + GRID_SIZE * 0.52, y));
+                        ctx.lineTo(x, yBounded);
+                        prevY = yBounded;
+                    }
+                    ctx.stroke();
+
+                    // Screen horizontal lines (data rows)
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.lineWidth = 0.5;
+                    ctx.globalAlpha = 0.2;
+                    for (let i = 0; i < 4; i++) {
+                        ctx.beginPath();
+                        ctx.moveTo(cellX + GRID_SIZE * 0.17, cellY + GRID_SIZE * (0.18 + i * 0.09));
+                        ctx.lineTo(cellX + GRID_SIZE * 0.83, cellY + GRID_SIZE * (0.18 + i * 0.09));
+                        ctx.stroke();
+                    }
+                    ctx.globalAlpha = 1.0;
+
+                    // Small indicator light
+                    ctx.fillStyle = '#00ff00';
+                    ctx.beginPath();
+                    ctx.arc(
+                        cellX + GRID_SIZE * 0.15 + 3,
+                        cellY + GRID_SIZE * 0.1 + 3,
+                        2,
+                        0, Math.PI * 2
+                    );
+                    ctx.fill();
+
+                    // Add logo/ticker to the screen
                     ctx.fillStyle = '#ffffff';
-                    ctx.fillRect(cellX + GRID_SIZE * 0.25, cellY + GRID_SIZE * 0.25, GRID_SIZE * 0.1, GRID_SIZE * 0.05);
-                    ctx.fillRect(cellX + GRID_SIZE * 0.25, cellY + GRID_SIZE * 0.35, GRID_SIZE * 0.2, GRID_SIZE * 0.05);
+                    ctx.font = '6px Arial';
+                    ctx.textAlign = 'left';
+                    ctx.fillText(
+                        ticker.toUpperCase(),
+                        cellX + GRID_SIZE * 0.19,
+                        cellY + GRID_SIZE * 0.17
+                    );
 
-                    ctx.fillStyle = '#555';
-                    ctx.fillRect(cellX + GRID_SIZE / 4, cellY + GRID_SIZE * 3 / 4, GRID_SIZE / 2, GRID_SIZE / 8);
+                    // Price indicators
+                    ctx.font = '6px Arial';
+                    ctx.fillText(
+                        `$${Math.floor(1000 + Math.random() * 9000)}`,
+                        cellX + GRID_SIZE * 0.72,
+                        cellY + GRID_SIZE * 0.17
+                    );
+
+                    // Screen reflection
+                    ctx.fillStyle = '#ffffff';
+                    ctx.globalAlpha = 0.05;
+                    ctx.beginPath();
+                    ctx.moveTo(cellX + GRID_SIZE * 0.17, cellY + GRID_SIZE * 0.12);
+                    ctx.lineTo(cellX + GRID_SIZE * 0.6, cellY + GRID_SIZE * 0.12);
+                    ctx.lineTo(cellX + GRID_SIZE * 0.35, cellY + GRID_SIZE * 0.25);
+                    ctx.lineTo(cellX + GRID_SIZE * 0.17, cellY + GRID_SIZE * 0.25);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.globalAlpha = 1.0;
+
+                    // Draw keyboard
+                    ctx.fillStyle = '#222222';
+                    roundedRect(
+                        ctx,
+                        cellX + GRID_SIZE * 0.25,
+                        cellY + GRID_SIZE * 0.65,
+                        GRID_SIZE * 0.5,
+                        GRID_SIZE * 0.1,
+                        2
+                    );
+
+                    // Keyboard keys
+                    ctx.fillStyle = '#444444';
+                    for (let i = 0; i < 3; i++) {
+                        for (let j = 0; j < 8; j++) {
+                            ctx.fillRect(
+                                cellX + GRID_SIZE * (0.26 + j * 0.06),
+                                cellY + GRID_SIZE * (0.66 + i * 0.03),
+                                GRID_SIZE * 0.05,
+                                GRID_SIZE * 0.02
+                            );
+                        }
+                    }
                     break;
 
                 case OBJECTS.COFFEE:
+                    // Enhanced coffee machine rendering
+                    const centerX = Math.floor(COLS / 2) + 3; // Moved right by 3 spaces
+                    const centerY = Math.floor(ROWS / 2) - 0.5;
+                    const isCenterPiece = (x === Math.floor(centerX) && y === Math.floor(centerY));
+
+                    // Base/counter
                     ctx.fillStyle = '#8B4513';
                     ctx.fillRect(cellX, cellY, GRID_SIZE, GRID_SIZE);
 
                     ctx.fillStyle = '#D2B48C';
-                    ctx.fillRect(cellX + 2, cellY + 2, GRID_SIZE - 4, GRID_SIZE / 2 - 2);
+                    ctx.fillRect(cellX + 2, cellY + 2, GRID_SIZE - 4, GRID_SIZE - 4);
 
-                    ctx.fillStyle = '#333';
-                    ctx.fillRect(cellX + GRID_SIZE / 6, cellY + GRID_SIZE / 6, GRID_SIZE * 2 / 3, GRID_SIZE / 3);
+                    // Draw different parts of the coffee machine based on position
+                    if (x === Math.floor(centerX) && y === Math.floor(centerY)) {
+                        // Main coffee machine body in top-left cell
+                        ctx.fillStyle = '#333';
+                        ctx.fillRect(cellX + 5, cellY + 5, GRID_SIZE - 10, GRID_SIZE - 15);
 
-                    ctx.fillStyle = '#555';
-                    ctx.fillRect(cellX + GRID_SIZE / 4, cellY + GRID_SIZE / 12, GRID_SIZE / 2, GRID_SIZE / 12);
+                        // Control panel
+                        ctx.fillStyle = '#222';
+                        ctx.fillRect(cellX + 5, cellY + GRID_SIZE - 15, GRID_SIZE - 10, 10);
 
-                    ctx.fillStyle = '#222';
-                    ctx.fillRect(cellX + GRID_SIZE * 0.6, cellY + GRID_SIZE / 5, GRID_SIZE / 5, GRID_SIZE / 4);
+                        // Buttons
+                        ctx.fillStyle = '#f00';
+                        ctx.beginPath();
+                        ctx.arc(cellX + 15, cellY + GRID_SIZE - 10, 3, 0, Math.PI * 2);
+                        ctx.fill();
 
-                    ctx.fillStyle = '#fff';
-                    ctx.fillRect(cellX + GRID_SIZE / 3, cellY + GRID_SIZE * 2 / 3, GRID_SIZE / 4, GRID_SIZE / 5);
+                        ctx.fillStyle = '#0f0';
+                        ctx.beginPath();
+                        ctx.arc(cellX + 25, cellY + GRID_SIZE - 10, 3, 0, Math.PI * 2);
+                        ctx.fill();
 
-                    ctx.fillStyle = '#6F4E37';
-                    ctx.fillRect(cellX + GRID_SIZE / 3 + 2, cellY + GRID_SIZE * 2 / 3 + 2, GRID_SIZE / 4 - 4, GRID_SIZE / 5 - 4);
+                        // Screen
+                        ctx.fillStyle = '#336699';
+                        ctx.fillRect(cellX + GRID_SIZE / 2 - 10, cellY + GRID_SIZE - 14, 20, 8);
 
-                    ctx.strokeStyle = '#ddd';
-                    ctx.beginPath();
-                    ctx.moveTo(cellX + GRID_SIZE * 0.4, cellY + GRID_SIZE * 2 / 3);
-                    ctx.bezierCurveTo(
-                        cellX + GRID_SIZE * 0.45, cellY + GRID_SIZE * 0.6,
-                        cellX + GRID_SIZE * 0.5, cellY + GRID_SIZE * 0.65,
-                        cellX + GRID_SIZE * 0.45, cellY + GRID_SIZE * 0.55
-                    );
-                    ctx.stroke();
+                    } else if (x === Math.floor(centerX) + 1 && y === Math.floor(centerY)) {
+                        // Top-right: Coffee grinder
+                        ctx.fillStyle = '#444';
+                        ctx.fillRect(cellX + 5, cellY + 5, GRID_SIZE - 15, GRID_SIZE - 10);
+
+                        // Bean container
+                        ctx.fillStyle = '#222';
+                        ctx.beginPath();
+                        ctx.arc(cellX + 12, cellY + GRID_SIZE / 3, GRID_SIZE / 4, 0, Math.PI * 2);
+                        ctx.fill();
+
+                        // Coffee beans
+                        ctx.fillStyle = '#654321';
+                        for (let i = 0; i < 5; i++) {
+                            ctx.beginPath();
+                            ctx.ellipse(
+                                cellX + 12 + (Math.random() * 10 - 5),
+                                cellY + GRID_SIZE / 3 + (Math.random() * 10 - 5),
+                                3, 2, Math.random() * Math.PI, 0, Math.PI * 2
+                            );
+                            ctx.fill();
+                        }
+                    } else if (x === Math.floor(centerX) && y === Math.floor(centerY) + 1) {
+                        // Bottom-left: Coffee dispensing area
+                        ctx.fillStyle = '#222';
+                        ctx.fillRect(cellX + 5, cellY + 5, GRID_SIZE - 10, GRID_SIZE / 3);
+
+                        // Drip area
+                        ctx.fillStyle = '#111';
+                        ctx.fillRect(cellX + GRID_SIZE / 2 - 8, cellY + GRID_SIZE / 3, 16, 2);
+
+                        // Coffee spouts
+                        ctx.fillStyle = '#222';
+                        ctx.fillRect(cellX + GRID_SIZE / 2 - 5, cellY + GRID_SIZE / 3 + 2, 2, 5);
+                        ctx.fillRect(cellX + GRID_SIZE / 2 + 3, cellY + GRID_SIZE / 3 + 2, 2, 5);
+
+                        // Coffee cup
+                        ctx.fillStyle = '#fff';
+                        ctx.fillRect(cellX + GRID_SIZE / 2 - 7, cellY + GRID_SIZE / 2, 14, 10);
+                        ctx.fillStyle = '#6F4E37';
+                        ctx.fillRect(cellX + GRID_SIZE / 2 - 5, cellY + GRID_SIZE / 2 + 2, 10, 6);
+                    } else if (x === Math.floor(centerX) + 1 && y === Math.floor(centerY) + 1) {
+                        // Bottom-right: Supplies and cups
+                        const cupColors = ['#fff', '#e0e0e0', '#f0f0f0'];
+                        const cupCount = 5;
+
+                        // Stack of cups
+                        for (let i = 0; i < cupCount; i++) {
+                            ctx.fillStyle = cupColors[i % cupColors.length];
+                            ctx.beginPath();
+                            ctx.arc(cellX + GRID_SIZE / 3, cellY + GRID_SIZE / 3 - i * 3, 8, 0, Math.PI * 2);
+                            ctx.fill();
+                            ctx.beginPath();
+                            ctx.ellipse(cellX + GRID_SIZE / 3, cellY + GRID_SIZE / 3 - i * 3, 8, 3, 0, 0, Math.PI * 2);
+                            ctx.fill();
+                        }
+
+                        // Coffee packets
+                        ctx.fillStyle = '#A52A2A';
+                        ctx.fillRect(cellX + GRID_SIZE / 2 + 2, cellY + 10, 12, 8);
+                        ctx.fillRect(cellX + GRID_SIZE / 2 + 5, cellY + 18, 12, 8);
+
+                        // Sugar packets
+                        ctx.fillStyle = '#fff';
+                        ctx.fillRect(cellX + GRID_SIZE / 2, cellY + GRID_SIZE / 2, 10, 5);
+                        ctx.fillRect(cellX + GRID_SIZE / 2 + 3, cellY + GRID_SIZE / 2 + 5, 10, 5);
+                    }
                     break;
 
-                case OBJECTS.PLANT:
-                    ctx.fillStyle = '#A0522D';
-                    ctx.fillRect(cellX + GRID_SIZE / 4, cellY + GRID_SIZE * 2 / 3, GRID_SIZE / 2, GRID_SIZE / 3);
+                case OBJECTS.TABLE:
+                    // Draw table
+                    ctx.fillStyle = COLORS.table;
+                    ctx.fillRect(cellX, cellY, GRID_SIZE, GRID_SIZE);
 
-                    ctx.fillStyle = '#8B4513';
-                    ctx.fillRect(cellX + GRID_SIZE / 4 - 2, cellY + GRID_SIZE * 2 / 3, GRID_SIZE / 2 + 4, GRID_SIZE / 12);
+                    // Table surface with wood grain
+                    ctx.fillStyle = '#8B5A2B';
+                    ctx.fillRect(cellX + 2, cellY + 2, GRID_SIZE - 4, GRID_SIZE - 4);
 
-                    ctx.fillStyle = '#3a2a1d';
-                    ctx.fillRect(cellX + GRID_SIZE / 4 + 2, cellY + GRID_SIZE * 2 / 3 + 3, GRID_SIZE / 2 - 4, GRID_SIZE / 12);
-
-                    ctx.fillStyle = '#228B22';
+                    // Wood grain effect
+                    ctx.strokeStyle = '#7C4A2A';
+                    ctx.lineWidth = 0.5;
                     ctx.beginPath();
-                    ctx.arc(cellX + GRID_SIZE / 2, cellY + GRID_SIZE / 3, GRID_SIZE / 3, 0, Math.PI * 2);
-                    ctx.fill();
 
-                    ctx.fillStyle = '#32CD32';
-                    ctx.beginPath();
-                    ctx.arc(cellX + GRID_SIZE / 2 + GRID_SIZE / 5, cellY + GRID_SIZE / 3 - GRID_SIZE / 8, GRID_SIZE / 5, 0, Math.PI * 2);
-                    ctx.fill();
+                    // Add wood grain lines
+                    for (let i = 1; i < 5; i++) {
+                        const lineY = cellY + 2 + i * (GRID_SIZE - 4) / 5;
+                        ctx.moveTo(cellX + 2, lineY);
+                        ctx.lineTo(cellX + GRID_SIZE - 2, lineY);
 
-                    ctx.beginPath();
-                    ctx.arc(cellX + GRID_SIZE / 2 - GRID_SIZE / 6, cellY + GRID_SIZE / 4, GRID_SIZE / 6, 0, Math.PI * 2);
-                    ctx.fill();
+                        // Add some wavy grain pattern
+                        const waveY = cellY + 2 + (i - 0.5) * (GRID_SIZE - 4) / 5;
+                        ctx.moveTo(cellX + 2, waveY);
+                        ctx.bezierCurveTo(
+                            cellX + GRID_SIZE / 3, waveY - 1,
+                            cellX + GRID_SIZE * 2 / 3, waveY + 1,
+                            cellX + GRID_SIZE - 2, waveY
+                        );
+                    }
+
+                    ctx.stroke();
+
+                    // Add border to make the table appear more polished
+                    ctx.strokeStyle = '#6B4226';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(cellX + 2, cellY + 2, GRID_SIZE - 4, GRID_SIZE - 4);
                     break;
 
                 default:
@@ -1110,9 +901,9 @@ async function fetchChainData() {
         const data = await response.json();
         if (data && data.chain_length) {
             chainLength = data.chain_length;
-            document.getElementById('chain-info').textContent = `Chain Length: ${chainLength} (${data.network})`;
+            document.getElementById('chain-info').textContent = `Block Height: ${chainLength} (SentiChain ${data.network})`;
             if (chainLength > lastFetchTime) {
-                updateSyncStatus("New blockchain data found!");
+                updateSyncStatus("Blockchain data sync complete.");
                 queueReasoningFetches(true);
                 lastFetchTime = chainLength;
             } else {
@@ -1121,8 +912,8 @@ async function fetchChainData() {
             }
         }
     } catch (err) {
-        console.error("Error fetching chain data", err);
-        debugLog("Error fetching chain data");
+        console.error("Error fetching blockchain data", err);
+        debugLog("Error fetching blockchain data");
         updateSyncStatus("Error checking blockchain data");
     }
 }
@@ -1191,7 +982,7 @@ async function fetchReasoningData(ticker, hasNewData) {
     if (!apiConnected || !chainLength) {
         currentFetchingTicker = null;
         isTaskInProgress = false;
-        debugLog("Abort fetch: Not connected or no chain length");
+        debugLog("Abort fetch: Not connected or no block information");
         scheduleNextTask();
         return;
     }
@@ -1557,10 +1348,10 @@ function start() {
 document.getElementById('connectBtn').addEventListener('click', () => {
     if (apiConnected) {
         disconnectFromApi();
-        document.getElementById('connectBtn').textContent = 'Connect to API';
+        document.getElementById('connectBtn').textContent = 'Connect';
     } else {
         connectToApi();
-        document.getElementById('connectBtn').textContent = 'Disconnect from API';
+        document.getElementById('connectBtn').textContent = 'Disconnect';
     }
 });
 
@@ -1649,12 +1440,38 @@ start();
 
 setupMobileScrolling();
 
-setTimeout(() => {
-    for (const person of people) {
-        person.wander();
-        person.state = 'walking';
-        person.speak('Taking a walk');
-    }
+// Immediately assign different starting activities to each person
+people[0].wander(); // BTC analyst takes a walk
+people[0].state = 'walking';
+people[0].speak('Taking a walk');
 
-    setTimeout(startTaskScheduler, 5000);
-}, 2000);
+people[1].goToCoffee(); // ETH analyst gets coffee
+people[1].state = 'walking';
+people[1].speak('Need some coffee to stay focused');
+
+people[2].goToTable(); // SOL analyst goes to the table
+people[2].state = 'walking';
+people[2].speak('Going to take a break at the table');
+
+people[3].goToWindow(); // DOGE analyst goes to the window
+people[3].state = 'walking';
+people[3].speak('Going to get some fresh air');
+
+// Still delay starting the task scheduler to give analysts time to move
+setTimeout(startTaskScheduler, 5000);
+
+// Helper function for drawing rounded rectangles
+function roundedRect(context, x, y, width, height, radius) {
+    context.beginPath();
+    context.moveTo(x + radius, y);
+    context.lineTo(x + width - radius, y);
+    context.quadraticCurveTo(x + width, y, x + width, y + radius);
+    context.lineTo(x + width, y + height - radius);
+    context.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+    context.lineTo(x + radius, y + height);
+    context.quadraticCurveTo(x, y + height, x, y + height - radius);
+    context.lineTo(x, y + radius);
+    context.quadraticCurveTo(x, y, x + radius, y);
+    context.closePath();
+    context.fill();
+}
