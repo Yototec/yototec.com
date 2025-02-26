@@ -2148,9 +2148,9 @@ async function fetchChainData() {
         const data = await response.json();
         if (data && data.chain_length) {
             chainLength = data.chain_length;
-            document.getElementById('chain-info').textContent = `Chain Length: ${chainLength} (${data.network})`;
+            document.getElementById('chain-info').textContent = `Block Height: ${chainLength} (SentiChain ${data.network})`;
             if (chainLength > lastFetchTime) {
-                updateSyncStatus("New blockchain data found!");
+                updateSyncStatus("Blockchain data sync complete.");
                 queueReasoningFetches(true);
                 lastFetchTime = chainLength;
             } else {
@@ -2159,8 +2159,8 @@ async function fetchChainData() {
             }
         }
     } catch (err) {
-        console.error("Error fetching chain data", err);
-        debugLog("Error fetching chain data");
+        console.error("Error fetching blockchain data", err);
+        debugLog("Error fetching blockchain data");
         updateSyncStatus("Error checking blockchain data");
     }
 }
@@ -2229,7 +2229,7 @@ async function fetchReasoningData(ticker, hasNewData) {
     if (!apiConnected || !chainLength) {
         currentFetchingTicker = null;
         isTaskInProgress = false;
-        debugLog("Abort fetch: Not connected or no chain length");
+        debugLog("Abort fetch: Not connected or no block information");
         scheduleNextTask();
         return;
     }
@@ -2595,10 +2595,10 @@ function start() {
 document.getElementById('connectBtn').addEventListener('click', () => {
     if (apiConnected) {
         disconnectFromApi();
-        document.getElementById('connectBtn').textContent = 'Connect to API';
+        document.getElementById('connectBtn').textContent = 'Connect';
     } else {
         connectToApi();
-        document.getElementById('connectBtn').textContent = 'Disconnect from API';
+        document.getElementById('connectBtn').textContent = 'Disconnect';
     }
 });
 
