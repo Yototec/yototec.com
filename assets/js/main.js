@@ -913,15 +913,21 @@ function disconnectFromApi() {
     }
 }
 
-function updateConnectionStatus(connected) {
-    const dot = document.getElementById('api-status-dot');
-    if (!dot) return;
-    if (connected) {
-        dot.classList.remove('disconnected-dot');
-        dot.classList.add('connected-dot');
+function updateConnectionStatus(status) {
+    const statusDot = document.getElementById('api-status-dot');
+    if (!statusDot) return;
+    
+    statusDot.classList.remove('connected-dot', 'disconnected-dot', 'connecting-dot');
+    
+    if (status === true || status === 'connected') {
+        statusDot.classList.add('connected-dot');
+        apiConnected = true;
+    } else if (status === 'connecting') {
+        statusDot.classList.add('connecting-dot');
+        // Leave apiConnected as is (should be false)
     } else {
-        dot.classList.remove('connected-dot');
-        dot.classList.add('disconnected-dot');
+        statusDot.classList.add('disconnected-dot');
+        apiConnected = false;
     }
 }
 
@@ -1378,16 +1384,6 @@ function start() {
     debugLog("Simulation started");
 }
 
-document.getElementById('connectBtn').addEventListener('click', () => {
-    if (apiConnected) {
-        disconnectFromApi();
-        document.getElementById('connectBtn').textContent = 'Connect';
-    } else {
-        connectToApi();
-        document.getElementById('connectBtn').textContent = 'Disconnect';
-    }
-});
-
 let canvasOffset = { x: 0, y: 0 };
 let isDragging = false;
 let startDragX = 0;
@@ -1528,3 +1524,14 @@ function roundedRect(context, x, y, width, height, radius) {
     context.closePath();
     context.fill();
 }
+
+// Add click event listener to the API status dot
+document.getElementById('api-status-dot').addEventListener('click', () => {
+    if (apiConnected) {
+        disconnectFromApi();
+    } else {
+        // First show connecting state
+        updateConnectionStatus('connecting');
+        connectToApi();
+    }
+});
