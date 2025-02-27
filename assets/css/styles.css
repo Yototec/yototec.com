@@ -134,7 +134,7 @@ body {
         font-size: 16px;
         position: absolute;  /* Position the button absolutely */
         right: 10px;         /* Keep it aligned to the right */
-        bottom: 10px;        /* Position it above the footer */
+        bottom: 10vh;        /* Position it above the footer */
     }
     
     #fetch-status {
