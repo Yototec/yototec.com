@@ -120,23 +120,34 @@ body {
 }
 
 @media (max-width: 767px) {
-    #connectBtn {
-        padding: 8px 15px;
-        font-size: 16px;
-    }
-    
     #terminalBottomBar {
         padding-bottom: 30px;
         margin-bottom: 10px;
+        position: relative;
+        bottom: 0;
+        width: 100%;
+        padding-bottom: 40px; /* Increase padding to make room for the footer */
     }
     
-    #terminalContent::-webkit-scrollbar {
-        width: 6px;
+    #connectBtn {
+        padding: 8px 15px;
+        font-size: 16px;
+        position: absolute;  /* Position the button absolutely */
+        right: 10px;         /* Keep it aligned to the right */
+        bottom: 10px;        /* Position it above the footer */
     }
     
-    #terminalContent::-webkit-scrollbar-thumb {
-        background-color: #4a4a4a;
-        border-radius: 3px;
+    #fetch-status {
+        max-width: 65%;      /* Ensure the status text doesn't overlap with the button */
+        margin-bottom: 10px; /* Add some spacing below the status text */
+    }
+    
+    #main-container {
+        margin-bottom: 30px; /* Maintain space for the footer */
+    }
+    
+    #terminalContent {
+        padding-bottom: 60px; /* Add padding to ensure content doesn't get cut off by the button */
     }
 }
 
