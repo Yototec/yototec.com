@@ -448,21 +448,33 @@ function drawOffice() {
                     break;
 
                 case OBJECTS.WINDOW:
+                    // Wall around the window frame
                     ctx.fillStyle = COLORS.wall;
                     ctx.fillRect(cellX, cellY, GRID_SIZE, GRID_SIZE);
-
-                    ctx.fillStyle = COLORS.window;
+                    
+                    // Sky visible through the window
+                    ctx.fillStyle = COLORS.sky;
                     ctx.fillRect(cellX + 4, cellY + 4, GRID_SIZE - 8, GRID_SIZE - 8);
-
+                    
+                    // Draw clouds visible through the window
+                    drawWindowClouds(cellX + 4, cellY + 4, GRID_SIZE - 8, GRID_SIZE - 8);
+                    
+                    // Window frame (cross pattern)
                     ctx.fillStyle = COLORS.wall;
-                    ctx.fillRect(cellX + GRID_SIZE / 2 - 2, cellY + 4, 4, GRID_SIZE - 8);
-                    ctx.fillRect(cellX + 4, cellY + GRID_SIZE / 2 - 2, GRID_SIZE - 8, 4);
-
+                    ctx.fillRect(cellX + GRID_SIZE / 2 - 1, cellY + 4, 2, GRID_SIZE - 8);
+                    ctx.fillRect(cellX + 4, cellY + GRID_SIZE / 2 - 1, GRID_SIZE - 8, 2);
+                    
+                    // Frame edge details
+                    ctx.strokeStyle = '#555';
+                    ctx.lineWidth = 1;
+                    ctx.strokeRect(cellX + 4, cellY + 4, GRID_SIZE - 8, GRID_SIZE - 8);
+                    
+                    // Window reflection/light effect
                     ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
                     ctx.beginPath();
                     ctx.moveTo(cellX + 6, cellY + 6);
-                    ctx.lineTo(cellX + GRID_SIZE / 2 - 4, cellY + 6);
-                    ctx.lineTo(cellX + 6, cellY + GRID_SIZE / 2 - 4);
+                    ctx.lineTo(cellX + GRID_SIZE / 3, cellY + 6);
+                    ctx.lineTo(cellX + 6, cellY + GRID_SIZE / 3);
                     ctx.closePath();
                     ctx.fill();
                     break;
@@ -1578,3 +1590,30 @@ document.getElementById('api-status-dot').addEventListener('click', () => {
         connectToApi();
     }
 });
+
+// Add this new function for drawing clouds in windows
+function drawWindowClouds(x, y, width, height) {
+    const time = Date.now() / 10000; // Same timing as main clouds for consistency
+    ctx.fillStyle = COLORS.cloud;
+    
+    // Save context to clip clouds to window area
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(x, y, width, height);
+    ctx.clip();
+    
+    // Draw 3 smaller clouds visible through window
+    for (let i = 0; i < 3; i++) {
+        const cloudX = x + ((i * width/2) + time * 15) % (width * 2) - width/4;
+        const cloudY = y + height/3 + Math.sin(time + i) * (height/6);
+        const size = width * (0.3 + Math.sin(i + time) * 0.1);
+        
+        ctx.beginPath();
+        ctx.arc(cloudX, cloudY, size/2, 0, Math.PI * 2);
+        ctx.arc(cloudX + size/4, cloudY - size/4, size/3, 0, Math.PI * 2);
+        ctx.arc(cloudX - size/4, cloudY - size/5, size/4, 0, Math.PI * 2);
+        ctx.fill();
+    }
+    
+    ctx.restore();
+}
