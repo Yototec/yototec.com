@@ -161,20 +161,20 @@ function initOffice() {
 
     // Add tab switching functionality for mobile
     const tabButtons = document.querySelectorAll('.tab-button');
-    
+
     // Set initial state - terminal is active by default on mobile
     if (window.innerWidth <= 767) {
         document.body.classList.remove('office-active');
     }
-    
+
     tabButtons.forEach(button => {
         button.addEventListener('click', () => {
             const tabName = button.getAttribute('data-tab');
-            
+
             // Update active tab button
             tabButtons.forEach(btn => btn.classList.remove('active'));
             button.classList.add('active');
-            
+
             // Switch view based on selected tab
             if (tabName === 'office') {
                 document.body.classList.add('office-active');
@@ -1428,12 +1428,13 @@ function setupMobileScrolling() {
             // Get actual canvas dimensions
             const canvasRect = canvas.getBoundingClientRect();
 
-            // Add extra padding (25%) to allow more scrolling area on both sides
-            const scrollPadding = canvasRect.width * 0.25;
-            const maxScroll = Math.max(0, canvas.width - canvasRect.width + scrollPadding);
+            // Asymmetric scrolling - more to the right, less to the left
+            const leftPadding = canvasRect.width * 0.2;  // Less padding on left
+            const rightPadding = canvasRect.width * 0.8;  // More padding on right
+            const maxScroll = Math.max(0, canvas.width - canvasRect.width + rightPadding);
 
-            // Allow scrolling with added padding
-            canvasOffset.x = Math.min(scrollPadding, Math.max(-maxScroll, canvasOffset.x));
+            // Allow scrolling with asymmetric limits
+            canvasOffset.x = Math.min(rightPadding, Math.max(-maxScroll + leftPadding, canvasOffset.x));
 
             startDragX = currentX;
 
@@ -1463,12 +1464,13 @@ function setupMobileScrolling() {
             // Get actual canvas dimensions
             const canvasRect = canvas.getBoundingClientRect();
 
-            // Add extra padding (25%) to allow more scrolling area on both sides
-            const scrollPadding = canvasRect.width * 0.25;
-            const maxScroll = Math.max(0, canvas.width - canvasRect.width + scrollPadding);
+            // Asymmetric scrolling - more to the right, less to the left
+            const leftPadding = canvasRect.width * 0.1;  // Less padding on left
+            const rightPadding = canvasRect.width * 0.8;  // More padding on right
+            const maxScroll = Math.max(0, canvas.width - canvasRect.width + rightPadding);
 
-            // Allow scrolling with added padding
-            canvasOffset.x = Math.min(scrollPadding, Math.max(-maxScroll, canvasOffset.x));
+            // Allow scrolling with asymmetric limits
+            canvasOffset.x = Math.min(rightPadding, Math.max(-maxScroll + leftPadding, canvasOffset.x));
 
             startDragX = e.clientX;
 
