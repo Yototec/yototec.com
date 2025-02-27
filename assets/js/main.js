@@ -891,6 +891,19 @@ function connectToApi() {
     if (!apiConnected) {
         apiConnected = true;
         updateConnectionStatus(true);
+
+        // Update terminal content to show analysts are in action
+        const terminalContent = document.getElementById('terminalContent');
+        if (terminalContent) {
+            const instructionsDiv = terminalContent.querySelector('.terminal-instructions');
+            if (instructionsDiv) {
+                instructionsDiv.textContent = "Our Analysts are in action. Waiting for the first task to complete...";
+            } else {
+                terminalContent.innerHTML = `<div id="branding">Welcome to Yototec - Innovating Market Intelligence</div>
+<div class="terminal-instructions">Our Analysts are in action. Waiting for the first task to complete...</div>`;
+            }
+        }
+
         fetchChainData();
         if (!animationTimer) {
             animationTimer = setInterval(animate, ANIMATION_SPEED);
@@ -916,9 +929,9 @@ function disconnectFromApi() {
 function updateConnectionStatus(status) {
     const statusDot = document.getElementById('api-status-dot');
     if (!statusDot) return;
-    
+
     statusDot.classList.remove('connected-dot', 'disconnected-dot', 'connecting-dot');
-    
+
     if (status === true || status === 'connected') {
         statusDot.classList.add('connected-dot');
         apiConnected = true;
