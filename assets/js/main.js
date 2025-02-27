@@ -890,6 +890,9 @@ function draw() {
 
     drawOffice();
     drawPeople();
+    
+    // Draw the dog
+    dog.draw();
 
     ctx.restore();
 }
@@ -1617,3 +1620,94 @@ function drawWindowClouds(x, y, width, height) {
     
     ctx.restore();
 }
+
+// Create a dog instance
+let dog = new Dog();
+
+// Modify the update function to include the dog
+function update() {
+    for (const person of people) {
+        person.update();
+    }
+    
+    // Update the dog
+    dog.update();
+}
+
+// Modify the draw function to include the dog
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    ctx.save();
+
+    if (isMobileView) {
+        ctx.translate(canvasOffset.x + 50, canvasOffset.y);
+    }
+
+    drawOffice();
+    drawPeople();
+    
+    // Draw the dog
+    dog.draw();
+
+    ctx.restore();
+}
+
+// Add dog petting ability to Person class
+Person.prototype.petDog = function() {
+    if (dog.isPettable(this)) {
+        if (dog.getPetBy(this)) {
+            this.state = 'pettingDog';
+            this.stateTime = 0;
+            this.speak("What a good dog!");
+            return true;
+        }
+    }
+    return false;
+};
+
+// Add a dog petting state to the Person update function
+const originalUpdate = Person.prototype.update;
+Person.prototype.update = function() {
+    // Add new dog petting state
+    if (this.state === 'pettingDog') {
+        this.stateTime++;
+        if (this.stateTime > 8) {
+            this.state = 'idle';
+            this.stateTime = 0;
+            
+            // Say something nice about the dog
+            const dogComments = [
+                "Such a good pup!",
+                "Who's a good analyst helper?",
+                "Dogs make the office better",
+                "That was a nice break",
+                "Pets reduce workplace stress"
+            ];
+            this.speak(dogComments[Math.floor(Math.random() * dogComments.length)]);
+        }
+        return;
+    }
+    
+    // Call the original update
+    originalUpdate.call(this);
+    
+    // Add dog interaction logic at the end
+    if (this.state === 'idle' && Math.random() < 0.01) {
+        if (dog.isPettable(this)) {
+            this.petDog();
+        }
+    }
+};
+
+// Add optional dog finding to idle behavior
+const originalIdle = people[0].constructor.prototype.wander;
+Person.prototype.wander = function() {
+    // 20% chance to try to find the dog instead of random wandering
+    if (Math.random() < 0.2) {
+        this.setDestination(dog.x, dog.y);
+        this.speak("Going to see the office dog");
+    } else {
+        originalIdle.call(this);
+    }
+};
