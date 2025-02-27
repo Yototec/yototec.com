@@ -215,7 +215,7 @@ body {
 }
 
 #branding {
-    font-size: 1.5em;
+    font-size: 2.0em;
     font-weight: bold;
     color: #0f0;
     text-align: center;
@@ -234,7 +234,7 @@ body {
 
 @media (max-width: 767px) {
     #branding {
-        font-size: 1.3em;
+        font-size: 1.5em;
         margin: 5px 0 10px 0;
         padding-bottom: 5px;
     }
