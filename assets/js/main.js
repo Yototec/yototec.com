@@ -448,35 +448,144 @@ function drawOffice() {
                     break;
 
                 case OBJECTS.WINDOW:
-                    // Wall around the window frame
-                    ctx.fillStyle = COLORS.wall;
-                    ctx.fillRect(cellX, cellY, GRID_SIZE, GRID_SIZE);
+                    // Check if this is part of a larger window
+                    let isPartOfLargerWindow = false;
+                    let windowWidth = GRID_SIZE;
+                    let windowHeight = GRID_SIZE;
 
-                    // Sky visible through the window
-                    ctx.fillStyle = COLORS.sky;
-                    ctx.fillRect(cellX + 4, cellY + 4, GRID_SIZE - 8, GRID_SIZE - 8);
+                    // Check if it's part of a horizontal window on top wall
+                    if (y === 0) {
+                        // Look left to find start of window
+                        let windowStart = x;
+                        while (windowStart > 0 && office[y][windowStart - 1] === OBJECTS.WINDOW) {
+                            windowStart--;
+                        }
 
-                    // Draw clouds visible through the window
-                    drawWindowClouds(cellX + 4, cellY + 4, GRID_SIZE - 8, GRID_SIZE - 8);
+                        // Look right to find end of window
+                        let windowEnd = x;
+                        while (windowEnd < COLS - 1 && office[y][windowEnd + 1] === OBJECTS.WINDOW) {
+                            windowEnd++;
+                        }
 
-                    // Window frame (cross pattern)
-                    ctx.fillStyle = COLORS.wall;
-                    ctx.fillRect(cellX + GRID_SIZE / 2 - 1, cellY + 4, 2, GRID_SIZE - 8);
-                    ctx.fillRect(cellX + 4, cellY + GRID_SIZE / 2 - 1, GRID_SIZE - 8, 2);
+                        windowWidth = (windowEnd - windowStart + 1) * GRID_SIZE;
 
-                    // Frame edge details
-                    ctx.strokeStyle = '#555';
-                    ctx.lineWidth = 1;
-                    ctx.strokeRect(cellX + 4, cellY + 4, GRID_SIZE - 8, GRID_SIZE - 8);
+                        // Only draw at the leftmost cell of the window
+                        if (x === windowStart) {
+                            // Wall around the window frame
+                            ctx.fillStyle = COLORS.wall;
+                            ctx.fillRect(cellX, cellY, windowWidth, GRID_SIZE);
 
-                    // Window reflection/light effect
-                    ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-                    ctx.beginPath();
-                    ctx.moveTo(cellX + 6, cellY + 6);
-                    ctx.lineTo(cellX + GRID_SIZE / 3, cellY + 6);
-                    ctx.lineTo(cellX + 6, cellY + GRID_SIZE / 3);
-                    ctx.closePath();
-                    ctx.fill();
+                            // Sky visible through the window
+                            ctx.fillStyle = COLORS.sky;
+                            ctx.fillRect(cellX + 4, cellY + 4, windowWidth - 8, GRID_SIZE - 8);
+
+                            // Draw clouds visible through the window
+                            drawWindowClouds(cellX + 4, cellY + 4, windowWidth - 8, GRID_SIZE - 8);
+
+                            // Window frame (vertical dividers)
+                            ctx.fillStyle = COLORS.wall;
+                            for (let i = 1; i < (windowEnd - windowStart + 1); i++) {
+                                ctx.fillRect(cellX + i * GRID_SIZE - 1, cellY + 4, 2, GRID_SIZE - 8);
+                            }
+
+                            // Frame edge details
+                            ctx.strokeStyle = '#555';
+                            ctx.lineWidth = 1;
+                            ctx.strokeRect(cellX + 4, cellY + 4, windowWidth - 8, GRID_SIZE - 8);
+
+                            // Window reflection/light effect
+                            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                            ctx.beginPath();
+                            ctx.moveTo(cellX + 6, cellY + 6);
+                            ctx.lineTo(cellX + windowWidth / 4, cellY + 6);
+                            ctx.lineTo(cellX + 6, cellY + GRID_SIZE / 2);
+                            ctx.closePath();
+                            ctx.fill();
+                        }
+
+                        isPartOfLargerWindow = true;
+                    }
+
+                    // Check if it's part of a vertical window on right wall
+                    if (x === COLS - 1) {
+                        // Look up to find start of window
+                        let windowStart = y;
+                        while (windowStart > 0 && office[windowStart - 1][x] === OBJECTS.WINDOW) {
+                            windowStart--;
+                        }
+
+                        // Look down to find end of window
+                        let windowEnd = y;
+                        while (windowEnd < ROWS - 1 && office[windowEnd + 1][x] === OBJECTS.WINDOW) {
+                            windowEnd++;
+                        }
+
+                        windowHeight = (windowEnd - windowStart + 1) * GRID_SIZE;
+
+                        // Only draw at the topmost cell of the window
+                        if (y === windowStart) {
+                            // Wall around the window frame
+                            ctx.fillStyle = COLORS.wall;
+                            ctx.fillRect(cellX, cellY, GRID_SIZE, windowHeight);
+
+                            // Sky visible through the window
+                            ctx.fillStyle = COLORS.sky;
+                            ctx.fillRect(cellX + 4, cellY + 4, GRID_SIZE - 8, windowHeight - 8);
+
+                            // Draw clouds visible through the window
+                            drawWindowClouds(cellX + 4, cellY + 4, GRID_SIZE - 8, windowHeight - 8);
+
+                            // Window frame (horizontal dividers)
+                            ctx.fillStyle = COLORS.wall;
+                            for (let i = 1; i < (windowEnd - windowStart + 1); i++) {
+                                ctx.fillRect(cellX + 4, cellY + i * GRID_SIZE - 1, GRID_SIZE - 8, 2);
+                            }
+
+                            // Frame edge details
+                            ctx.strokeStyle = '#555';
+                            ctx.lineWidth = 1;
+                            ctx.strokeRect(cellX + 4, cellY + 4, GRID_SIZE - 8, windowHeight - 8);
+
+                            // Window reflection/light effect
+                            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                            ctx.beginPath();
+                            ctx.moveTo(cellX + 6, cellY + 6);
+                            ctx.lineTo(cellX + GRID_SIZE / 2, cellY + 6);
+                            ctx.lineTo(cellX + 6, cellY + windowHeight / 4);
+                            ctx.closePath();
+                            ctx.fill();
+                        }
+
+                        isPartOfLargerWindow = true;
+                    }
+
+                    // If not part of a larger window or not the start cell, don't draw anything
+                    if (!isPartOfLargerWindow) {
+                        // Original single window code for windows not on the edges
+                        ctx.fillStyle = COLORS.wall;
+                        ctx.fillRect(cellX, cellY, GRID_SIZE, GRID_SIZE);
+
+                        ctx.fillStyle = COLORS.sky;
+                        ctx.fillRect(cellX + 4, cellY + 4, GRID_SIZE - 8, GRID_SIZE - 8);
+
+                        drawWindowClouds(cellX + 4, cellY + 4, GRID_SIZE - 8, GRID_SIZE - 8);
+
+                        ctx.fillStyle = COLORS.wall;
+                        ctx.fillRect(cellX + GRID_SIZE / 2 - 1, cellY + 4, 2, GRID_SIZE - 8);
+                        ctx.fillRect(cellX + 4, cellY + GRID_SIZE / 2 - 1, GRID_SIZE - 8, 2);
+
+                        ctx.strokeStyle = '#555';
+                        ctx.lineWidth = 1;
+                        ctx.strokeRect(cellX + 4, cellY + 4, GRID_SIZE - 8, GRID_SIZE - 8);
+
+                        ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                        ctx.beginPath();
+                        ctx.moveTo(cellX + 6, cellY + 6);
+                        ctx.lineTo(cellX + GRID_SIZE / 3, cellY + 6);
+                        ctx.lineTo(cellX + 6, cellY + GRID_SIZE / 3);
+                        ctx.closePath();
+                        ctx.fill();
+                    }
                     break;
 
                 case OBJECTS.DESK:
