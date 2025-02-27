@@ -159,6 +159,31 @@ function initOffice() {
         new Person(deskPositions.doge.x, deskPositions.doge.y, 'Analyst Dodge', 'doge')
     ];
 
+    // Add tab switching functionality for mobile
+    const tabButtons = document.querySelectorAll('.tab-button');
+    
+    // Set initial state - terminal is active by default on mobile
+    if (window.innerWidth <= 767) {
+        document.body.classList.remove('office-active');
+    }
+    
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const tabName = button.getAttribute('data-tab');
+            
+            // Update active tab button
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+            
+            // Switch view based on selected tab
+            if (tabName === 'office') {
+                document.body.classList.add('office-active');
+            } else {
+                document.body.classList.remove('office-active');
+            }
+        });
+    });
+
     canvas.addEventListener('click', (e) => {
         const rect = canvas.getBoundingClientRect();
         const clickX = Math.floor((e.clientX - rect.left) / GRID_SIZE);
