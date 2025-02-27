@@ -126,7 +126,8 @@ body {
     }
     
     #terminalBottomBar {
-        padding-bottom: 5px;
+        padding-bottom: 30px;
+        margin-bottom: 10px;
     }
     
     #terminalContent::-webkit-scrollbar {
