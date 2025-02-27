@@ -22,7 +22,8 @@ const OBJECTS = {
     WINDOW: 8,
     BALCONY: 9,
     BALCONY_RAIL: 10,
-    TABLE: 11
+    TABLE: 11,
+    BAR_TABLE: 12
 };
 
 const COLORS = {
@@ -133,7 +134,7 @@ function initOffice() {
 
     for (let dx = -Math.floor(tableWidth / 2); dx < Math.ceil(tableWidth / 2); dx++) {
         for (let dy = -Math.floor(tableHeight / 2); dy < Math.ceil(tableHeight / 2); dy++) {
-            office[tableCenterY + dy][tableCenterX + dx] = OBJECTS.TABLE;
+            office[tableCenterY + dy][tableCenterX + dx] = OBJECTS.BAR_TABLE;
         }
     }
 
@@ -225,6 +226,7 @@ function isWalkable(x, y) {
         office[y][x] === OBJECTS.COMPUTER ||
         office[y][x] === OBJECTS.BALCONY_RAIL ||
         office[y][x] === OBJECTS.TABLE ||
+        office[y][x] === OBJECTS.BAR_TABLE ||
         office[y][x] === OBJECTS.COFFEE
     ) {
         return false;
@@ -948,6 +950,147 @@ function drawOffice() {
                     ctx.strokeStyle = '#6B4226';
                     ctx.lineWidth = 2;
                     ctx.strokeRect(cellX + 2, cellY + 2, GRID_SIZE - 4, GRID_SIZE - 4);
+                    break;
+
+                case OBJECTS.BAR_TABLE:
+                    // Check if this is part of a larger bar table
+                    let isTopEdge = y > 0 ? office[y - 1][x] !== OBJECTS.BAR_TABLE : true;
+                    let isBottomEdge = y < ROWS - 1 ? office[y + 1][x] !== OBJECTS.BAR_TABLE : true;
+                    let isLeftEdge = x > 0 ? office[y][x - 1] !== OBJECTS.BAR_TABLE : true;
+                    let isRightEdge = x < COLS - 1 ? office[y][x + 1] !== OBJECTS.BAR_TABLE : true;
+
+                    // Corner pieces (where to draw legs)
+                    let isTopLeftCorner = isTopEdge && isLeftEdge;
+                    let isTopRightCorner = isTopEdge && isRightEdge;
+                    let isBottomLeftCorner = isBottomEdge && isLeftEdge;
+                    let isBottomRightCorner = isBottomEdge && isRightEdge;
+
+                    // Always draw the table top surface
+                    // Dark wood top with consistent coloring
+                    ctx.fillStyle = '#3A2313';
+
+                    // Draw the top surface with seamless connections
+                    ctx.fillRect(
+                        cellX + (isLeftEdge ? 2 : 0),
+                        cellY + (isTopEdge ? 2 : 0),
+                        GRID_SIZE - (isLeftEdge ? 2 : 0) - (isRightEdge ? 2 : 0),
+                        GRID_SIZE / 2 - (isTopEdge ? 2 : 0)
+                    );
+
+                    // Add glossy finish to the top only on top edge
+                    if (isTopEdge) {
+                        ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+                        ctx.fillRect(
+                            cellX + (isLeftEdge ? 4 : 0),
+                            cellY + 4,
+                            GRID_SIZE - (isLeftEdge ? 4 : 0) - (isRightEdge ? 4 : 0),
+                            2
+                        );
+                    }
+
+                    // Draw table frame/supports to fill the gap between tabletop and legs
+                    ctx.fillStyle = '#2A1A0A'; // Darker wood for the frame
+
+                    // Left support
+                    if (isLeftEdge) {
+                        ctx.fillRect(
+                            cellX + 2,
+                            cellY + GRID_SIZE / 2,
+                            GRID_SIZE / 4 - 3,
+                            GRID_SIZE / 8
+                        );
+                    }
+
+                    // Right support
+                    if (isRightEdge) {
+                        ctx.fillRect(
+                            cellX + GRID_SIZE * 3 / 4,
+                            cellY + GRID_SIZE / 2,
+                            GRID_SIZE / 4 - 2,
+                            GRID_SIZE / 8
+                        );
+                    }
+
+                    // Center support that spans the width if not at the edge
+                    if (!isLeftEdge || !isRightEdge) {
+                        ctx.fillRect(
+                            cellX + (isLeftEdge ? GRID_SIZE / 4 : 0),
+                            cellY + GRID_SIZE / 2,
+                            GRID_SIZE - (isLeftEdge ? GRID_SIZE / 4 : 0) - (isRightEdge ? GRID_SIZE / 4 : 0),
+                            GRID_SIZE / 8
+                        );
+                    }
+
+                    // Draw the metal legs only at corners
+                    ctx.fillStyle = '#B8B8B8';
+                    if (isTopLeftCorner && isBottomEdge) {
+                        // Top-left leg
+                        ctx.fillRect(cellX + GRID_SIZE / 4 - 1, cellY + GRID_SIZE / 2 + GRID_SIZE / 8, 2, GRID_SIZE / 2 - GRID_SIZE / 8);
+                    }
+
+                    if (isTopRightCorner && isBottomEdge) {
+                        // Top-right leg
+                        ctx.fillRect(cellX + GRID_SIZE * 3 / 4 - 1, cellY + GRID_SIZE / 2 + GRID_SIZE / 8, 2, GRID_SIZE / 2 - GRID_SIZE / 8);
+                    }
+
+                    if (isBottomLeftCorner) {
+                        // Bottom-left leg
+                        ctx.fillRect(cellX + GRID_SIZE / 4 - 1, cellY + GRID_SIZE / 2 + GRID_SIZE / 8, 2, GRID_SIZE / 2 - GRID_SIZE / 8);
+                    }
+
+                    if (isBottomRightCorner) {
+                        // Bottom-right leg
+                        ctx.fillRect(cellX + GRID_SIZE * 3 / 4 - 1, cellY + GRID_SIZE / 2 + GRID_SIZE / 8, 2, GRID_SIZE / 2 - GRID_SIZE / 8);
+                    }
+
+                    // Draw foot rest bar only on bottom edge
+                    if (isBottomEdge) {
+                        ctx.strokeStyle = '#B8B8B8';
+                        ctx.lineWidth = 2;
+                        ctx.beginPath();
+
+                        // Adjust the starting and ending points to connect between table legs
+                        let startX = isLeftEdge ? cellX + GRID_SIZE / 4 : cellX;
+                        let endX = isRightEdge ? cellX + GRID_SIZE * 3 / 4 : cellX + GRID_SIZE;
+
+                        ctx.moveTo(startX, cellY + GRID_SIZE * 3 / 4);
+                        ctx.lineTo(endX, cellY + GRID_SIZE * 3 / 4);
+                        ctx.stroke();
+                    }
+
+                    // Add border/outline but only on edges
+                    ctx.strokeStyle = '#222';
+                    ctx.lineWidth = 1;
+
+                    // Top edge
+                    if (isTopEdge) {
+                        ctx.beginPath();
+                        ctx.moveTo(cellX + (isLeftEdge ? 2 : 0), cellY + 2);
+                        ctx.lineTo(cellX + GRID_SIZE - (isRightEdge ? 2 : 0), cellY + 2);
+                        ctx.stroke();
+                    }
+
+                    // Left edge
+                    if (isLeftEdge) {
+                        ctx.beginPath();
+                        ctx.moveTo(cellX + 2, cellY + (isTopEdge ? 2 : 0));
+                        ctx.lineTo(cellX + 2, cellY + GRID_SIZE / 2);
+                        ctx.stroke();
+                    }
+
+                    // Right edge
+                    if (isRightEdge) {
+                        ctx.beginPath();
+                        ctx.moveTo(cellX + GRID_SIZE - 2, cellY + (isTopEdge ? 2 : 0));
+                        ctx.lineTo(cellX + GRID_SIZE - 2, cellY + GRID_SIZE / 2);
+                        ctx.stroke();
+                    }
+
+                    // Bottom edge of tabletop
+                    ctx.beginPath();
+                    ctx.moveTo(cellX + (isLeftEdge ? 2 : 0), cellY + GRID_SIZE / 2);
+                    ctx.lineTo(cellX + GRID_SIZE - (isRightEdge ? 2 : 0), cellY + GRID_SIZE / 2);
+                    ctx.stroke();
                     break;
 
                 default:
