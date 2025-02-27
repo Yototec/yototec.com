@@ -77,7 +77,7 @@ body {
         justify-content: center;
         align-items: center;
     }
-    
+
     #terminalBox::before {
         content: '';
         position: absolute;
@@ -90,7 +90,7 @@ body {
         border-radius: 10px;
         margin-top: 5px;
     }
-    
+
     #terminalBox {
         width: 100%;
         height: 100%;
@@ -100,13 +100,13 @@ body {
         box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.3);
         margin: 0;
     }
-    
+
     #branding {
         font-size: 1.2em;
         margin: 10px 0 10px 0;
         padding-bottom: 5px;
     }
-    
+
     #left-panel::after {
         content: '';
         position: absolute;
@@ -114,7 +114,7 @@ body {
         left: 0;
         right: 0;
         height: 15px;
-        background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.1));
+        background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.1));
         pointer-events: none;
     }
 }
@@ -126,31 +126,42 @@ body {
         position: relative;
         bottom: 0;
         width: 100%;
-        padding-bottom: 40px; /* Increase padding to make room for the footer */
+        padding-bottom: 40px;
+        /* Increase padding to make room for the footer */
     }
-    
+
     #connectBtn {
         padding: 8px 15px;
         font-size: 16px;
-        position: absolute;  /* Position the button absolutely */
-        right: 10px;         /* Keep it aligned to the right */
-        bottom: 15vh;        /* Position it above the footer */
+        position: absolute;
+        /* Position the button absolutely */
+        right: 10px;
+        /* Keep it aligned to the right */
+        bottom: 15vh;
+        /* Position it above the footer */
     }
-    
+
     #fetch-status {
-        max-width: 65%;      /* Ensure the status text doesn't overlap with the button */
-        margin-bottom: 10px; /* Add some spacing below the status text */
-        position: absolute;  /* Position the status absolutely */
-        left: 10px;          /* Align to the left */
-        bottom: 15vh;        /* Match the button's vertical position */
+        max-width: 65%;
+        /* Ensure the status text doesn't overlap with the button */
+        margin-bottom: 10px;
+        /* Add some spacing below the status text */
+        position: absolute;
+        /* Position the status absolutely */
+        left: 10px;
+        /* Align to the left */
+        bottom: 15vh;
+        /* Match the button's vertical position */
     }
-    
+
     #main-container {
-        margin-bottom: 30px; /* Maintain space for the footer */
+        margin-bottom: 30px;
+        /* Maintain space for the footer */
     }
-    
+
     #terminalContent {
-        padding-bottom: 60px; /* Add padding to ensure content doesn't get cut off by the button */
+        padding-bottom: 60px;
+        /* Add padding to ensure content doesn't get cut off by the button */
     }
 }
 
@@ -346,17 +357,19 @@ body {
     #mobile-tabs {
         display: flex;
     }
-    
+
     #main-container {
         flex-direction: column;
         background-color: #f0f2f5;
         position: relative;
         height: 100vh;
         overflow: hidden;
-        margin-top: 44px; /* Height of the tabs */
+        margin-top: 44px;
+        /* Height of the tabs */
     }
-    
-    #left-panel, #right-panel {
+
+    #left-panel,
+    #right-panel {
         width: 100%;
         height: calc(100vh - 44px);
         transition: transform 0.3s ease;
@@ -364,26 +377,26 @@ body {
         top: 0;
         left: 0;
     }
-    
+
     /* Default state now shows terminal panel */
     #left-panel {
         transform: translateX(100%);
     }
-    
+
     #right-panel {
         transform: translateX(0);
         background-color: #1e1e1e;
     }
-    
+
     /* Office active class (reversed from before) */
     body.office-active #left-panel {
         transform: translateX(0);
     }
-    
+
     body.office-active #right-panel {
         transform: translateX(-100%);
     }
-    
+
     #terminalBox {
         width: 100%;
         height: 100%;
@@ -393,7 +406,7 @@ body {
         box-shadow: none;
         margin: 0;
     }
-    
+
     /* Remove the drag handle as we're using tabs instead */
     #terminalBox::before {
         display: none;
@@ -406,7 +419,8 @@ body {
     bottom: 0;
     left: 0;
     width: 100%;
-    background-color: #f0f2f5; /* Same as desktop background */
+    background-color: #f0f2f5;
+    /* Same as desktop background */
     color: #000;
     text-align: center;
     padding: 8px 0;
@@ -419,15 +433,28 @@ body {
     #global-footer {
         padding: 6px 0;
         font-size: 12px;
-        background-color: #f0f2f5; /* Same as desktop background */
+        background-color: #f0f2f5;
+        /* Same as desktop background */
         color: #000;
     }
-    
+
     #main-container {
-        margin-bottom: 30px; /* Make space for the footer */
+        margin-bottom: 30px;
+        /* Make space for the footer */
     }
-    
+
     #terminalBottomBar {
-        margin-bottom: 20px; /* Increase bottom margin to prevent overlap with footer */
+        margin-bottom: 20px;
+        /* Increase bottom margin to prevent overlap with footer */
     }
+}
+
+#chain-info a {
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+#chain-info a:hover {
+    color: #0f0;
 }

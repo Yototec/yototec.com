@@ -451,24 +451,24 @@ function drawOffice() {
                     // Wall around the window frame
                     ctx.fillStyle = COLORS.wall;
                     ctx.fillRect(cellX, cellY, GRID_SIZE, GRID_SIZE);
-                    
+
                     // Sky visible through the window
                     ctx.fillStyle = COLORS.sky;
                     ctx.fillRect(cellX + 4, cellY + 4, GRID_SIZE - 8, GRID_SIZE - 8);
-                    
+
                     // Draw clouds visible through the window
                     drawWindowClouds(cellX + 4, cellY + 4, GRID_SIZE - 8, GRID_SIZE - 8);
-                    
+
                     // Window frame (cross pattern)
                     ctx.fillStyle = COLORS.wall;
                     ctx.fillRect(cellX + GRID_SIZE / 2 - 1, cellY + 4, 2, GRID_SIZE - 8);
                     ctx.fillRect(cellX + 4, cellY + GRID_SIZE / 2 - 1, GRID_SIZE - 8, 2);
-                    
+
                     // Frame edge details
                     ctx.strokeStyle = '#555';
                     ctx.lineWidth = 1;
                     ctx.strokeRect(cellX + 4, cellY + 4, GRID_SIZE - 8, GRID_SIZE - 8);
-                    
+
                     // Window reflection/light effect
                     ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
                     ctx.beginPath();
@@ -890,7 +890,7 @@ function draw() {
 
     drawOffice();
     drawPeople();
-    
+
     // Draw the dog
     dog.draw();
 
@@ -921,37 +921,37 @@ function connectToApi() {
 
         // Initialize and start a task immediately
         debugLog("API Connected - Assigning immediate task");
-        
+
         // Select a random analyst and start them working immediately
         const tickers = ['btc', 'eth', 'sol', 'doge'];
         const randomTicker = tickers[Math.floor(Math.random() * tickers.length)];
         const randomAnalyst = people.find(p => p.ticker.toLowerCase() === randomTicker);
-        
+
         if (randomAnalyst) {
             // Stop whatever they're doing and start analysis
             randomAnalyst.state = 'walking';
-            randomAnalyst.wander = function() {}; // Temporarily disable wandering
-            
+            randomAnalyst.wander = function () { }; // Temporarily disable wandering
+
             // Force them to go to desk and start analyzing
             randomAnalyst.goToDesk();
             randomAnalyst.speak("Urgent analysis needed!");
-            
+
             // Add to the queue and process immediately
             fetchQueue.push({ ticker: randomTicker, hasNewData: true });
             isTaskInProgress = false;
             currentFetchingTicker = null;
             processQueue();
         }
-        
+
         // Start regular timers
         if (!animationTimer) {
             animationTimer = setInterval(animate, ANIMATION_SPEED);
         }
-        
+
         // Start full task scheduler for future tasks
         fetchChainData();
         startTaskScheduler();
-        
+
         debugLog("Immediate analysis assigned");
     }
 }
@@ -998,7 +998,8 @@ async function fetchChainData() {
         const data = await response.json();
         if (data && data.chain_length) {
             chainLength = data.chain_length;
-            document.getElementById('chain-info').textContent = `Block Height: ${chainLength} (SentiChain ${data.network})`;
+            const chainInfoElement = document.getElementById('chain-info');
+            chainInfoElement.innerHTML = `Block Height: <a href="https://sentichain.com/app?tab=BlockExplorer&block=last#" target="_blank">${chainLength}</a> (SentiChain ${data.network})`;
             if (chainLength > lastFetchTime) {
                 updateSyncStatus("Blockchain data sync complete.");
                 queueReasoningFetches(true);
@@ -1598,26 +1599,26 @@ document.getElementById('api-status-dot').addEventListener('click', () => {
 function drawWindowClouds(x, y, width, height) {
     const time = Date.now() / 10000; // Same timing as main clouds for consistency
     ctx.fillStyle = COLORS.cloud;
-    
+
     // Save context to clip clouds to window area
     ctx.save();
     ctx.beginPath();
     ctx.rect(x, y, width, height);
     ctx.clip();
-    
+
     // Draw 3 smaller clouds visible through window
     for (let i = 0; i < 3; i++) {
-        const cloudX = x + ((i * width/2) + time * 15) % (width * 2) - width/4;
-        const cloudY = y + height/3 + Math.sin(time + i) * (height/6);
+        const cloudX = x + ((i * width / 2) + time * 15) % (width * 2) - width / 4;
+        const cloudY = y + height / 3 + Math.sin(time + i) * (height / 6);
         const size = width * (0.3 + Math.sin(i + time) * 0.1);
-        
+
         ctx.beginPath();
-        ctx.arc(cloudX, cloudY, size/2, 0, Math.PI * 2);
-        ctx.arc(cloudX + size/4, cloudY - size/4, size/3, 0, Math.PI * 2);
-        ctx.arc(cloudX - size/4, cloudY - size/5, size/4, 0, Math.PI * 2);
+        ctx.arc(cloudX, cloudY, size / 2, 0, Math.PI * 2);
+        ctx.arc(cloudX + size / 4, cloudY - size / 4, size / 3, 0, Math.PI * 2);
+        ctx.arc(cloudX - size / 4, cloudY - size / 5, size / 4, 0, Math.PI * 2);
         ctx.fill();
     }
-    
+
     ctx.restore();
 }
 
@@ -1629,7 +1630,7 @@ function update() {
     for (const person of people) {
         person.update();
     }
-    
+
     // Update the dog
     dog.update();
 }
@@ -1646,7 +1647,7 @@ function draw() {
 
     drawOffice();
     drawPeople();
-    
+
     // Draw the dog
     dog.draw();
 
@@ -1654,7 +1655,7 @@ function draw() {
 }
 
 // Add dog petting ability to Person class
-Person.prototype.petDog = function() {
+Person.prototype.petDog = function () {
     if (dog.isPettable(this)) {
         if (dog.getPetBy(this)) {
             this.state = 'pettingDog';
@@ -1668,14 +1669,14 @@ Person.prototype.petDog = function() {
 
 // Add a dog petting state to the Person update function
 const originalUpdate = Person.prototype.update;
-Person.prototype.update = function() {
+Person.prototype.update = function () {
     // Add new dog petting state
     if (this.state === 'pettingDog') {
         this.stateTime++;
         if (this.stateTime > 8) {
             this.state = 'idle';
             this.stateTime = 0;
-            
+
             // Say something nice about the dog
             const dogComments = [
                 "Such a good pup!",
@@ -1688,10 +1689,10 @@ Person.prototype.update = function() {
         }
         return;
     }
-    
+
     // Call the original update
     originalUpdate.call(this);
-    
+
     // Add dog interaction logic at the end
     if (this.state === 'idle' && Math.random() < 0.01) {
         if (dog.isPettable(this)) {
@@ -1702,7 +1703,7 @@ Person.prototype.update = function() {
 
 // Add optional dog finding to idle behavior
 const originalIdle = people[0].constructor.prototype.wander;
-Person.prototype.wander = function() {
+Person.prototype.wander = function () {
     // 20% chance to try to find the dog instead of random wandering
     if (Math.random() < 0.2) {
         this.setDestination(dog.x, dog.y);
