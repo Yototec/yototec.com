@@ -385,3 +385,35 @@ body {
         display: none;
     }
 }
+
+/* Global Footer */
+#global-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #f0f2f5; /* Same as desktop background */
+    color: #000;
+    text-align: center;
+    padding: 8px 0;
+    font-size: 14px;
+    font-family: monospace;
+    z-index: 1000;
+}
+
+@media (max-width: 767px) {
+    #global-footer {
+        padding: 6px 0;
+        font-size: 12px;
+        background-color: #f0f2f5; /* Same as desktop background */
+        color: #000;
+    }
+    
+    #main-container {
+        margin-bottom: 30px; /* Make space for the footer */
+    }
+    
+    #terminalBottomBar {
+        margin-bottom: 20px; /* Increase bottom margin to prevent overlap with footer */
+    }
+}
