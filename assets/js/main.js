@@ -1593,8 +1593,8 @@ function setupMobileScrolling() {
             const canvasRect = canvas.getBoundingClientRect();
 
             // Asymmetric scrolling - more to the right, less to the left
-            const leftPadding = canvasRect.width * -0.4;  // Less padding on left
-            const rightPadding = canvasRect.width * 0.3;  // More padding on right
+            const leftPadding = canvasRect.width * -0.35;  // Less padding on left
+            const rightPadding = canvasRect.width * 0.25;  // More padding on right
             const maxScroll = Math.max(0, canvas.width - canvasRect.width + rightPadding);
 
             // Allow scrolling with asymmetric limits
