@@ -904,13 +904,43 @@ function connectToApi() {
             }
         }
 
-        fetchChainData();
+        // Initialize and start a task immediately
+        debugLog("API Connected - Assigning immediate task");
+        
+        // Select a random analyst and start them working immediately
+        const tickers = ['btc', 'eth', 'sol', 'doge'];
+        const randomTicker = tickers[Math.floor(Math.random() * tickers.length)];
+        const randomAnalyst = people.find(p => p.ticker.toLowerCase() === randomTicker);
+        
+        if (randomAnalyst) {
+            // Stop whatever they're doing and start analysis
+            randomAnalyst.state = 'walking';
+            randomAnalyst.wander = function() {}; // Temporarily disable wandering
+            
+            // Force them to go to desk and start analyzing
+            randomAnalyst.goToDesk();
+            randomAnalyst.speak("Urgent analysis needed!");
+            
+            // Add to the queue and process immediately
+            fetchQueue.push({ ticker: randomTicker, hasNewData: true });
+            isTaskInProgress = false;
+            currentFetchingTicker = null;
+            processQueue();
+        }
+        
+        // Start regular timers
         if (!animationTimer) {
             animationTimer = setInterval(animate, ANIMATION_SPEED);
         }
-        debugLog("API Connected");
+        
+        // Start full task scheduler for future tasks
+        fetchChainData();
+        startTaskScheduler();
+        
+        debugLog("Immediate analysis assigned");
     }
 }
+
 function disconnectFromApi() {
     if (apiConnected) {
         apiConnected = false;
@@ -1520,7 +1550,7 @@ people[3].state = 'walking';
 people[3].speak('Going to get some fresh air');
 
 // Still delay starting the task scheduler to give analysts time to move
-setTimeout(startTaskScheduler, 5000);
+// setTimeout(startTaskScheduler, 5000);
 
 // Helper function for drawing rounded rectangles
 function roundedRect(context, x, y, width, height, radius) {
