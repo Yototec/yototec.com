@@ -13,15 +13,11 @@ const REASONING_API_BASE = "https://api.sentichain.com/agent/get_reasoning_match
 const OBJECTS = {
     EMPTY: 0,
     WALL: 1,
-    CHAIR: 2,
     DESK: 3,
     COMPUTER: 4,
     COFFEE: 5,
-    PLANT: 6,
     CARPET: 7,
     WINDOW: 8,
-    BALCONY: 9,
-    BALCONY_RAIL: 10,
     TABLE: 11,
     BAR_TABLE: 12
 };
@@ -34,7 +30,6 @@ const COLORS = {
     table: '#6d4c41',
     computer: '#333333',
     screen: '#87CEEB',
-    chair: '#4a4a4a',
     skin: '#FFD700',
     body: '#2c3e50',
     btcUniform: '#F7931A',
@@ -224,7 +219,6 @@ function isWalkable(x, y) {
         office[y][x] === OBJECTS.WALL ||
         office[y][x] === OBJECTS.DESK ||
         office[y][x] === OBJECTS.COMPUTER ||
-        office[y][x] === OBJECTS.BALCONY_RAIL ||
         office[y][x] === OBJECTS.TABLE ||
         office[y][x] === OBJECTS.BAR_TABLE ||
         office[y][x] === OBJECTS.COFFEE
@@ -1514,114 +1508,6 @@ function getDetailedAnalysisContent(ticker) {
     });
 
     return content;
-}
-
-function getMarketData(ticker) {
-    const data = {
-        'btc': [
-            "Last price data retrieved",
-            "Volume analyzed across major exchanges",
-            "Market depth evaluated"
-        ],
-        'eth': [
-            "Gas price metrics retrieved",
-            "Smart contract volume analyzed",
-            "Exchange inflow/outflow measured"
-        ],
-        'sol': [
-            "TPS metrics collected",
-            "Validator statistics retrieved",
-            "TVL data analyzed"
-        ],
-        'doge': [
-            "Price volatility metrics retrieved",
-            "Trading volume patterns analyzed",
-            "Exchange distribution examined"
-        ]
-    };
-
-    return data[ticker.toLowerCase()].join('\n');
-}
-
-function getMarketAnalysis(ticker) {
-    const analysis = {
-        'btc': [
-            "Identifying support/resistance levels",
-            "Analyzing on-chain metrics",
-            "Evaluating market structure"
-        ],
-        'eth': [
-            "Correlating gas prices with network activity",
-            "Analyzing DeFi protocol interaction",
-            "Evaluating L2 adoption impact"
-        ],
-        'sol': [
-            "Analyzing network performance metrics",
-            "Evaluating adoption trends",
-            "Measuring ecosystem growth"
-        ],
-        'doge': [
-            "Correlating social metrics with price action",
-            "Analyzing community sentiment impact",
-            "Measuring velocity patterns"
-        ]
-    };
-
-    return analysis[ticker.toLowerCase()].join('\n');
-}
-
-function getQuantModels(ticker) {
-    const models = {
-        'btc': [
-            "NVTS model updated",
-            "Hash rate correlation calculated",
-            "Volatility projections modeled"
-        ],
-        'eth': [
-            "ETH/BTC correlation model updated",
-            "Gas fee elasticity calculated",
-            "DeFi yield impact modeled"
-        ],
-        'sol': [
-            "TPS sustainability model updated",
-            "TVL correlation calculated",
-            "Network growth projections modeled"
-        ],
-        'doge': [
-            "Social sentiment model updated",
-            "Volatility correlation calculated",
-            "Momentum indicators modeled"
-        ]
-    };
-
-    return models[ticker.toLowerCase()].join('\n');
-}
-
-function getSentimentIndicators(ticker) {
-    const sentiment = {
-        'btc': [
-            "Twitter sentiment indicators retrieved",
-            "News sentiment analysis performed",
-            "Market positioning analyzed"
-        ],
-        'eth': [
-            "Developer sentiment analyzed",
-            "Institutional interest measured",
-            "Community growth evaluated"
-        ],
-        'sol': [
-            "Developer activity measured",
-            "Ecosystem sentiment analyzed",
-            "Investor positioning evaluated"
-        ],
-        'doge': [
-            "Social media sentiment retrieved",
-            "Meme velocity measured",
-            "Community engagement analyzed"
-        ]
-    };
-
-    return sentiment[ticker.toLowerCase()].join('\n');
 }
 
 function updateTerminalDisplay() {
