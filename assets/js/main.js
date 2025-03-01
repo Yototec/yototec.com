@@ -72,7 +72,6 @@ function debugLog(message) {
 let office = [];
 let people = [];
 let animationTimer;
-let apiPollTimer;
 let taskScheduleTimer;
 let taskInterval = 10000;
 let isTaskInProgress = false;
@@ -1571,7 +1570,6 @@ function checkForTasks() {
 function start() {
     initOffice();
     if (animationTimer) clearInterval(animationTimer);
-    if (apiPollTimer) clearInterval(apiPollTimer);
     if (taskScheduleTimer) clearTimeout(taskScheduleTimer);
     currentFetchingTicker = null;
     fetchQueue = [];
